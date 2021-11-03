@@ -1,1 +1,1 @@
-# -proctoring-bot
+# proctoring-bot
