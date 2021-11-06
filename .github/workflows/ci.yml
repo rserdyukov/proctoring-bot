@@ -25,3 +25,20 @@ jobs:
           checkAllCommitMessages: true
 
           accessToken: ${{ secrets.GITHUB_TOKEN }}
+
+    launch:
+      name: Bot Launcher
+      runs-on: ubuntu-20.04
+
+      steps:
+        - uses: actions/setup-python@v1
+          with:
+            python-version: '3.8'
+            architecture: 'x64'
+
+        - name: Install requirements
+
+          run: pip install -r srcipts/requirements.txt
+
+        - name: Run bot
+          run: coverage run sources/main.py
