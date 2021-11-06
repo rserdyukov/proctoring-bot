@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+  push:
+    branches: [ main ]
+
+jobs:
+  check_pr_commits:
+    name: Commit Checker
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: GS Commit Message Checker
+
+        uses: GsActions/commit-message-checker@v1
+        with:
+          pattern: "((feat|fix|docs|style|refactor|test|build|ci|perf)+(\\([a-z]+(.)+\\))?\\: [a-z]+(.)+)|(Review fixes(.)*)$"
+
+          error: "One of commit messages has an incorrect title. Please read the documentation: docs/develop/pr.md."
+
+          excludeTitle: true
+
+          excludeDescription: true
+
+          checkAllCommitMessages: true
+
+          accessToken: ${{ secrets.GITHUB_TOKEN }}
