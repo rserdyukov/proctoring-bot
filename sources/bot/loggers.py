@@ -7,9 +7,7 @@ class LogInstaller:
     ERROR = logging.ERROR
     DEBUG = logging.DEBUG
 
-    log_formats = {
-        'default': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    }
+    log_formats = {"default": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"}
 
     @staticmethod
     def add_format(other: dict):
@@ -26,4 +24,4 @@ class LogInstaller:
 
     @staticmethod
     def get_default_logger(package_name: str, level: int) -> logging.Logger:
-        return LogInstaller.get_logger(package_name, 'default', level)
+        return LogInstaller.get_logger(package_name, "default", level)
