@@ -10,8 +10,8 @@ class ProctoringBot(Bot):
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.INFO)
 
     def __init__(self, configurator: BaseConfigurator, factory: HandlersFactory):
-        super().__init__(configurator.get_bot_token('token'))
-        self._users_table = configurator.get_table_id('users_table')
+        super().__init__(configurator.get_bot_token("token"))
+        self._users_table = configurator.get_table_id("users_table")
         self._machine = StateMachine(self)
         self._factory = factory
 
@@ -19,4 +19,3 @@ class ProctoringBot(Bot):
         self._logger.info("Proctoring bot run...")
         self._factory.setup_handlers(self._machine)
         self._machine.run()
-
