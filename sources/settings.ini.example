@@ -1,0 +1,8 @@
+[Bot]
+token=token
+
+[Chat]
+timeout=0
+
+[Spreadsheet]
+users_table=id
