@@ -5,4 +5,4 @@ token=token
 timeout=0
 
 [Spreadsheet]
-users_table=id
+spreadsheet_id=id
