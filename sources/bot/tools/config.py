@@ -12,5 +12,5 @@ class BaseConfigurator:
     def get_chat_option(self, option: str) -> str:
         return self.config["Chat"][option]
 
-    def get_table_id(self, option: str) -> str:
+    def get_spreadsheet_id(self, option: str) -> str:
         return self.config["Spreadsheet"][option]

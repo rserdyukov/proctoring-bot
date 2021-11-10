@@ -11,7 +11,7 @@ class ProctoringBot(Bot):
 
     def __init__(self, configurator: BaseConfigurator, factory: HandlersFactory):
         super().__init__(configurator.get_bot_token("token"))
-        self._users_table = configurator.get_table_id("users_table")
+        self._users_spreadsheet = configurator.get_spreadsheet_id("spreadsheet_id")
         self._machine = StateMachine(self)
         self._factory = factory
 
