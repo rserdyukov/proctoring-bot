@@ -10,8 +10,8 @@ class ProctoringBot(Bot):
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.INFO)
 
     def __init__(self, configurator: BaseConfigurator, factory: HandlersFactory):
-        super().__init__(configurator.get_bot_token("token"))
-        self._users_spreadsheet = configurator.get_spreadsheet_id("spreadsheet_id")
+        super().__init__(configurator.get_bot_option("token"))
+        self._users_spreadsheet = configurator.get_spreadsheet_option("spreadsheet_id")
         self._machine = StateMachine(self)
         self._factory = factory
 

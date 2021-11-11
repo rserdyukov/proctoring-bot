@@ -6,11 +6,11 @@ class BaseConfigurator:
         self.config = ConfigParser()
         self.config.read(config_file)
 
-    def get_bot_token(self, option: str) -> str:
+    def get_bot_option(self, option: str) -> str:
         return self.config["Bot"][option]
 
     def get_chat_option(self, option: str) -> str:
         return self.config["Chat"][option]
 
-    def get_spreadsheet_id(self, option: str) -> str:
+    def get_spreadsheet_option(self, option: str) -> str:
         return self.config["Spreadsheet"][option]
