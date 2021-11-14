@@ -1,3 +1,4 @@
+import copy
 from types import FunctionType
 
 from bot.loggers import LogInstaller
@@ -8,10 +9,12 @@ class HandlersRegistrar:
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.INFO)
     _handler_contexts = []
     _handler_types = {}
+    bot = None
 
     def __init__(self, machine: StateMachine):
         self._logger.info("Handlers registrar initiate...")
         self._machine = machine
+        HandlersRegistrar.bot = self._machine.bot
         self._handler_types.update(
             {
                 "message_handler": self._machine.register_message_handler,
@@ -77,7 +80,7 @@ class HandlersRegistrar:
     def _register_chains(self, handlers_chains: list):
         self._logger.info("Register handlers chains...")
 
-        not_registered_chains = handlers_chains
+        not_registered_chains = copy.deepcopy(handlers_chains)
         for chain in handlers_chains:
             for handler_params in HandlersRegistrar._handler_contexts:
                 if handler_params["callback"].__name__ in dir(chain):
@@ -87,7 +90,7 @@ class HandlersRegistrar:
                     break
 
         if len(not_registered_chains) != 0:
-            raise TypeError(f"Unable to register in {handlers_chains}")
+            raise TypeError(f"Unable to register in {not_registered_chains}")
 
     def _register_handlers(self):
         self._logger.info("Register handlers in chains...")
