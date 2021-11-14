@@ -69,7 +69,19 @@ class AuthHandlersChain(HandlersChain):
         group = data["group"]
         subgroup = data["subgroup"]
 
+        await message.reply(
+            "Спасибо за регистрацию.\n\n" f"Информация о Вас:\nФИО: {fio}\nГруппа: {group}\nПодгруппа: {subgroup}\n"
+        )
+
+    @staticmethod
+    @Registrar.message_handler(commands=["info"])
+    async def get_info_handler(message: types.Message, state: FSMContext):
+        data = await state.get_data()
+        fio = data.get("fio")
+        group = data.get("group")
+        subgroup = data.get("subgroup")
+
         await state.finish()
         await message.reply(
-            "Спасибо за регистрацию.\n\n" f"Информация о Вас:\n ФИО: {fio}\nГруппа: {group}\nПодгруппа: {subgroup}\n"
+            f"Информация о Вас:\nФИО: {fio}\nГруппа: {group}\nПодгруппа: {subgroup}\n"
         )
