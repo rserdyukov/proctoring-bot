@@ -16,6 +16,7 @@ class HandlersRegistrar:
             {
                 "message_handler": self._machine.register_message_handler,
                 "callback_query_handler": self._machine.callback_query_handler,
+                "errors_handler": self._machine.register_errors_handler,
             }
         )
 
@@ -47,6 +48,23 @@ class HandlersRegistrar:
                 "callback": callback,
                 "custom_filters": custom_filters,
                 "state": state,
+            }
+            callback_context.update(kwargs)
+
+            HandlersRegistrar._handler_contexts.append(callback_context)
+
+            return callback
+
+        return decorator
+
+    @staticmethod
+    def errors_handler(*custom_filters, exception=None, **kwargs):
+        def decorator(callback):
+            callback_context = {
+                "handler": "errors_handler",
+                "callback": callback,
+                "custom_filters": custom_filters,
+                "exception": exception,
             }
             callback_context.update(kwargs)
 
