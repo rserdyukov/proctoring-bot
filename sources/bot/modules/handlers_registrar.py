@@ -1,13 +1,16 @@
+from types import FunctionType
+
 from bot.loggers import LogInstaller
 from bot.state_machine import StateMachine
 
 
 class HandlersRegistrar:
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.INFO)
-    _callback_contexts = []
+    _handler_contexts = []
     _handler_types = {}
 
     def __init__(self, machine: StateMachine):
+        self._logger.info("Handlers registrar initiate...")
         self._machine = machine
         self._handler_types.update(
             {
@@ -30,7 +33,7 @@ class HandlersRegistrar:
             }
             callback_context.update(kwargs)
 
-            HandlersRegistrar._callback_contexts.append(callback_context)
+            HandlersRegistrar._handler_contexts.append(callback_context)
 
             return callback
 
@@ -47,20 +50,42 @@ class HandlersRegistrar:
             }
             callback_context.update(kwargs)
 
-            HandlersRegistrar._callback_contexts.append(callback_context)
+            HandlersRegistrar._handler_contexts.append(callback_context)
 
             return callback
 
         return decorator
 
-    def process(self):
-        for callback_params in HandlersRegistrar._callback_contexts:
-            register_message_handler = self._handler_types.get(callback_params["handler"])
-            del callback_params["handler"]
+    def _register_chains(self, handlers_chains: list):
+        self._logger.info("Register handlers chains...")
 
-            custom_filters = callback_params["custom_filters"]
-            del callback_params["custom_filters"]
-            func = callback_params["callback"]
-            del callback_params["callback"]
+        not_registered_chains = handlers_chains
+        for chain in handlers_chains:
+            for handler_params in HandlersRegistrar._handler_contexts:
+                if handler_params["callback"].__name__ in dir(chain):
+                    self._logger.info(f"Register {chain.__name__}")
 
-            register_message_handler(func, *custom_filters, **callback_params)
+                    not_registered_chains.remove(chain)
+                    break
+
+        if len(not_registered_chains) != 0:
+            raise TypeError(f"Unable to register in {handlers_chains}")
+
+    def _register_handlers(self):
+        self._logger.info("Register handlers in chains...")
+        for handler_params in HandlersRegistrar._handler_contexts:
+            register_message_handler = self._handler_types.get(handler_params["handler"])
+            del handler_params["handler"]
+
+            custom_filters = handler_params["custom_filters"]
+            del handler_params["custom_filters"]
+            func: FunctionType = handler_params["callback"]
+            del handler_params["callback"]
+
+            self._logger.info(f"Register {func.__name__} in {func.__module__}")
+            register_message_handler(func, *custom_filters, **handler_params)
+
+    def register(self, handlers_chains: list):
+        self._register_chains(handlers_chains)
+        self._register_handlers()
+
