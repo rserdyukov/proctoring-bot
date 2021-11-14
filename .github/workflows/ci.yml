@@ -11,35 +11,31 @@ jobs:
 
     steps:
       - name: GS Commit Message Checker
-      uses: GsActions/commit-message-checker@v1
+        uses: GsActions/commit-message-checker@v1
         with:
           pattern: "((feat|fix|docs|style|refactor|test|build|ci|perf)+(\\([a-z]+(.)+\\))?\\: [a-z]+(.)+)|(Review fixes(.)*)$"
-
           error: "One of commit messages has an incorrect title. Please read the documentation: docs/develop/pr.md."
-
           excludeTitle: true
-
           excludeDescription: true
-
           checkAllCommitMessages: true
-
           accessToken: ${{ secrets.GITHUB_TOKEN }}
 
-  launch:
+  check_code_style:
     name: Code Style Checker
     runs-on: ubuntu-20.04
 
+    strategy:
+      matrix:
+        python-version: [ "3.8" ]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-          - name: Install dependencies
-            run: |
-              python -m pip install --upgrade pip
-              pip3 install black==20.8b1
-
-          - name: Analysing the code with pylint
-            run: |
-              black --diff --color --line-length 120 sources
+      - name: Install dependencies
+        run: |
+          pip3 install black==20.8b1
+      - name: Analysing the code with pylint
+        run: |
+          black --diff --color --line-length 120 sources
