@@ -88,4 +88,3 @@ class HandlersRegistrar:
     def register(self, handlers_chains: list):
         self._register_chains(handlers_chains)
         self._register_handlers()
-
