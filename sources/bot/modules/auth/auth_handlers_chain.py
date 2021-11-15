@@ -17,12 +17,12 @@ class AuthHandlersChain(HandlersChain):
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.DEBUG)
 
     @staticmethod
-    @Registrar.message_handler(commands=["start"])
-    async def start_handler(message: types.Message):
+    @Registrar.callback_query_handler(text="auth")
+    async def start_handler(query: types.CallbackQuery):
         AuthHandlersChain._logger.debug(f"Start auth conversation state")
         await AuthStates.fio.set()
 
-        await message.reply("Привет. Введите ваше ФИО.")
+        await Registrar.bot.send_message(query.from_user.id, "Введите ваше ФИО.")
 
     @staticmethod
     @Registrar.message_handler(commands=["cancel"], state="*")
@@ -82,6 +82,4 @@ class AuthHandlersChain(HandlersChain):
         subgroup = data.get("subgroup")
 
         await state.finish()
-        await message.reply(
-            f"Информация о Вас:\nФИО: {fio}\nГруппа: {group}\nПодгруппа: {subgroup}\n"
-        )
+        await message.reply(f"Информация о Вас:\nФИО: {fio}\nГруппа: {group}\nПодгруппа: {subgroup}\n")
