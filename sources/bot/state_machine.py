@@ -11,6 +11,7 @@ class StateMachine(Dispatcher):
 
     def __init__(self, bot):
         if bot is not None:
+            # todo: Implement SpreadsheetStorage(MemoryStorage)
             super().__init__(bot, storage=MemoryStorage())
             self.middleware.setup(LoggingMiddleware())
 

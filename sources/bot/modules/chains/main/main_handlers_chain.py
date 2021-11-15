@@ -33,6 +33,7 @@ class MainHandlersChain(HandlersChain):
         keyboard_markup = MainKeyboardsBuilder.get_start_keyboard()
 
         # todo: Add check if user is registered
+        # todo: Implement auth expectation handlers chain
         await message.reply(
             f"Привет, {message.from_user.first_name}!" f"\nПройдите, пожалуйста, регистрацию.",
             reply_markup=keyboard_markup,
