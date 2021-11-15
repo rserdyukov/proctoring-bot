@@ -82,6 +82,4 @@ class AuthHandlersChain(HandlersChain):
         subgroup = data.get("subgroup")
 
         await state.finish()
-        await message.reply(
-            f"Информация о Вас:\nФИО: {fio}\nГруппа: {group}\nПодгруппа: {subgroup}\n"
-        )
+        await message.reply(f"Информация о Вас:\nФИО: {fio}\nГруппа: {group}\nПодгруппа: {subgroup}\n")
