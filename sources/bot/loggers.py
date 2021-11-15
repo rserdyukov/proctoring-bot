@@ -2,6 +2,7 @@ import logging
 
 
 class LogInstaller:
+    # todo: Implement FileLogger
     INFO = logging.INFO
     WARN = logging.WARN
     ERROR = logging.ERROR
