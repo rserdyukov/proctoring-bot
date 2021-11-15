@@ -18,7 +18,7 @@ class HandlersRegistrar:
         self._handler_types.update(
             {
                 "message_handler": self._machine.register_message_handler,
-                "callback_query_handler": self._machine.callback_query_handler,
+                "callback_query_handler": self._machine.register_callback_query_handler,
                 "errors_handler": self._machine.register_errors_handler,
             }
         )
