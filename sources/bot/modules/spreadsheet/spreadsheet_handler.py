@@ -9,11 +9,11 @@ from bot.loggers import LogInstaller
 class SpreadsheetHandler:
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.DEBUG)
 
-    def __init__(self, spreadsheet_id, file_name: str, sheet_attributes_dict: Dict[str, List[str]]):
+    def __init__(self, spreadsheet_id, file_name: str, sheet_attributes: Dict[str, List[str]]):
         self._spreadsheet_id = spreadsheet_id
         self._credentials_file = file_name
-        self._sheet_attributes_dict = sheet_attributes_dict
-        self._created_sheet_list = list()
+        self._sheet_attributes = sheet_attributes
+        self._created_sheets = list()
 
         self._credentials = ServiceAccountCredentials.from_json_keyfile_name(
             self._credentials_file,
@@ -22,15 +22,16 @@ class SpreadsheetHandler:
         self._http_auth = self._credentials.authorize(httplib2.Http())
         self._service = apiclient.discovery.build("sheets", "v4", http=self._http_auth)
 
-    def __pop_sheet_title(self):
-        titles = list(self._sheet_attributes_dict.keys())
-        sheet_title = titles[len(self._sheet_attributes_dict.keys()) - len(self._created_sheet_list) - 1]
-        attributes = self._sheet_attributes_dict.get(sheet_title)
-        self._created_sheet_list.append(sheet_title)
+    def _pop_sheet_title(self):
+        keys = self._sheet_attributes.keys()
+        titles = list(keys)
+        sheet_title = titles[len(keys) - len(self._created_sheets) - 1]
+        attributes = self._sheet_attributes.get(sheet_title)
+        self._created_sheets.append(sheet_title)
         return sheet_title, attributes
 
-    def __create_sheet(self, row_count: int, column_count: int) -> None:
-        sheet_title, attributes = self.__pop_sheet_title()
+    def _create_sheet(self, row_count: int, column_count: int) -> None:
+        sheet_title, attributes = self._pop_sheet_title()
 
         self._service.spreadsheets().batchUpdate(
             spreadsheetId=self._spreadsheet_id,
@@ -63,7 +64,7 @@ class SpreadsheetHandler:
         ).execute()
 
     def create_spreadsheet(self, spreadsheet_title: str, row_count: int, column_count: int) -> None:
-        sheet_title, attributes = self.__pop_sheet_title()
+        sheet_title, attributes = self._pop_sheet_title()
 
         spreadsheet = (
             self._service.spreadsheets()
@@ -87,8 +88,7 @@ class SpreadsheetHandler:
 
         self._spreadsheet_id = spreadsheet["spreadsheetId"]
         self._logger.debug(
-            f"Open spreadsheet in https://docs.google.com/spreadsheets/d/"
-            f"{self._spreadsheet_id}/edit#gid=0"
+            f"Open spreadsheet in https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0"
         )
 
         self._service.spreadsheets().values().batchUpdate(
@@ -99,18 +99,18 @@ class SpreadsheetHandler:
             },
         ).execute()
 
-        while len(self._created_sheet_list) != len(self._sheet_attributes_dict.keys()):
-            self.__create_sheet(row_count, column_count)
+        while len(self._created_sheets) != len(self._sheet_attributes.keys()):
+            self._create_sheet(row_count, column_count)
 
-        self.__get_permissions()
+        self._get_permissions()
 
-    def __get_permissions(self) -> None:
+    def _get_permissions(self) -> None:
         drive_service = apiclient.discovery.build("drive", "v3", http=self._http_auth)
         drive_service.permissions().create(
             fileId=self._spreadsheet_id, body={"type": "anyone", "role": "reader"}, fields="id"
         ).execute()
 
-    def __get_sheet_range(self, spreadsheet_title: str, corner_from: str, corner_to: str):
+    def _get_sheet_range(self, spreadsheet_title: str, corner_from: str, corner_to: str):
         return (
             self._service.spreadsheets()
             .values()
@@ -123,10 +123,10 @@ class SpreadsheetHandler:
             .execute()
         )
 
-    def __get_first_column_sheet_range(self, spreadsheet_title: str):
-        return self.__get_sheet_range(spreadsheet_title, "A1", "A1000")
+    def _get_first_column_sheet_range(self, spreadsheet_title: str):
+        return self._get_sheet_range(spreadsheet_title, "A1", "A1000")
 
-    def __update_spreadsheet_row(self, spreadsheet_title: str, row_number: int, values: List[str]):
+    def _update_spreadsheet_row(self, spreadsheet_title: str, row_number: int, values: List[str]):
         self._service.spreadsheets().values().batchUpdate(
             spreadsheetId=self._spreadsheet_id,
             body={
@@ -143,7 +143,7 @@ class SpreadsheetHandler:
 
     def add_row(self, spreadsheet_title: str, row: List[str]) -> None:
         first_row_element = row[0]
-        results = self.__get_first_column_sheet_range(spreadsheet_title)
+        results = self._get_first_column_sheet_range(spreadsheet_title)
         sheet_values = results["valueRanges"][0]["values"]
         row_number = len(sheet_values) + 1
 
@@ -155,28 +155,28 @@ class SpreadsheetHandler:
                 row_number = sheet_values.index([first_row_element]) + 1
                 break
 
-        self.__update_spreadsheet_row(spreadsheet_title, row_number, row)
+        self._update_spreadsheet_row(spreadsheet_title, row_number, row)
 
     def remove_row(self, spreadsheet_title: str, first_row_element: str) -> None:
-        results = self.__get_first_column_sheet_range(spreadsheet_title)
+        results = self._get_first_column_sheet_range(spreadsheet_title)
         sheet_values = results["valueRanges"][0]["values"]
         row_number = sheet_values.index([first_row_element]) + 1
 
         empty_string_list = []
-        for i in range(len(self._sheet_attributes_dict.get(spreadsheet_title))):
+        for i in range(len(self._sheet_attributes.get(spreadsheet_title))):
             empty_string_list.append("")
 
-        self.__update_spreadsheet_row(spreadsheet_title, row_number, empty_string_list)
+        self._update_spreadsheet_row(spreadsheet_title, row_number, empty_string_list)
 
     def get_first_column_sheet_range(self, spreadsheet_title: str) -> list:
-        results = self.__get_first_column_sheet_range(spreadsheet_title)
+        results = self._get_first_column_sheet_range(spreadsheet_title)
         sheet_values = results["valueRanges"][0]["values"]
         return sheet_values
 
     def get_row_by_first_element(self, spreadsheet_title: str, element: str) -> dict:
         alphabet_start_index = 64
-        right_corner = chr(alphabet_start_index + len(self._sheet_attributes_dict.get(spreadsheet_title)))
-        results = self.__get_sheet_range(spreadsheet_title, "A2", f"{right_corner}1000")
+        right_corner = chr(alphabet_start_index + len(self._sheet_attributes.get(spreadsheet_title)))
+        results = self._get_sheet_range(spreadsheet_title, "A2", f"{right_corner}1000")
 
         if results["valueRanges"][0].get("values"):
             sheet_values = results["valueRanges"][0]["values"]
@@ -187,7 +187,7 @@ class SpreadsheetHandler:
         i = 0
         for sheet_row in sheet_values:
             if sheet_row and sheet_row[0] == element:
-                for attribute in self._sheet_attributes_dict.get(spreadsheet_title):
+                for attribute in self._sheet_attributes.get(spreadsheet_title):
                     row[attribute] = sheet_row[i]
                     i += 1
 
