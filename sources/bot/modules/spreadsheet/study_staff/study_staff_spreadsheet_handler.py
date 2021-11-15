@@ -5,7 +5,10 @@ from bot.modules.spreadsheet.spreadsheet_handler import SpreadsheetHandler
 
 class StudyStaffSpreadsheetHandler:
     def __init__(self, spreadsheet_id: str, file_name: str):
-        self._attributes = {"Студенты": ["username", "ФИО", "Группа", "Подруппа"], "Преподаватели": ["username", "ФИО"]}
+        self._attributes = {
+            "Студенты": ["username", "ФИО", "Группа", "Подгруппа"],
+            "Преподаватели": ["username", "ФИО"],
+        }
         self._handler = SpreadsheetHandler(spreadsheet_id, file_name, self._attributes)
         self._student_sheet_title = list(self._attributes.keys())[0]
         self._teacher_sheet_title = list(self._attributes.keys())[1]
