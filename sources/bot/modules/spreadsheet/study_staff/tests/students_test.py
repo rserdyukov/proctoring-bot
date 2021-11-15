@@ -1,9 +1,9 @@
 import unittest
 
-from bot.modules.spreadsheet.study_staff.tests.spreadsheet_test import SpreadsheetTest
+from bot.modules.spreadsheet.study_staff.tests.spreadsheet_test import TestSpreadsheet
 
 
-class TestStudents(SpreadsheetTest):
+class TestSpreadsheetStudents(TestSpreadsheet):
     def test_add_student(self):
         username = "MksmOrlov"
         name = "Орлов Максим Константинович"
