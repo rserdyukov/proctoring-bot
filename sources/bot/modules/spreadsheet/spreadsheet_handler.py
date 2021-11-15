@@ -84,6 +84,8 @@ class SpreadsheetHandler:
 
         self._spreadsheet_id = spreadsheet["spreadsheetId"]
 
+        print(f"Open spreadsheet in https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0")
+
         self._service.spreadsheets().values().batchUpdate(
             spreadsheetId=self._spreadsheet_id,
             body={
