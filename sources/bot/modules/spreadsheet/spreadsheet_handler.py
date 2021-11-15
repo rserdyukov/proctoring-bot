@@ -166,7 +166,7 @@ class SpreadsheetHandler:
     def get_first_column_sheet_range(self, spreadsheet_title: str) -> list:
         results = self._get_first_column_sheet_range(spreadsheet_title)
         sheet_values = results["valueRanges"][0]["values"]
-        return sheet_values
+        return list(filter(lambda v: v != [], sheet_values[1:]))
 
     def get_row_by_first_element(self, spreadsheet_title: str, element: str) -> dict:
         alphabet_start_index = 64
