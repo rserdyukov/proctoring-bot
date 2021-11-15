@@ -14,4 +14,4 @@ class KeyboardBuilder:
             keyboards.append(keyboard_group)
             keyboard_group = []
 
-        return InlineKeyboardMarkup(keyboards)
+        return InlineKeyboardMarkup(inline_keyboard=keyboards)
