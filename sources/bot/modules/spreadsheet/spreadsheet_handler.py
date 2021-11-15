@@ -3,12 +3,8 @@ import apiclient
 from oauth2client.service_account import ServiceAccountCredentials
 from typing import List, Dict
 
-from bot.loggers import LogInstaller
-
 
 class SpreadsheetHandler:
-    _logger = LogInstaller.get_default_logger(__name__, LogInstaller.DEBUG)
-
     def __init__(self, spreadsheet_id, file_name: str, sheet_attributes: Dict[str, List[str]]):
         self._spreadsheet_id = spreadsheet_id
         self._credentials_file = file_name
@@ -87,9 +83,6 @@ class SpreadsheetHandler:
         )
 
         self._spreadsheet_id = spreadsheet["spreadsheetId"]
-        self._logger.debug(
-            f"Open spreadsheet in https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0"
-        )
 
         self._service.spreadsheets().values().batchUpdate(
             spreadsheetId=self._spreadsheet_id,
