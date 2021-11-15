@@ -18,7 +18,7 @@ class SpreadsheetHandler:
         self._http_auth = self._credentials.authorize(httplib2.Http())
         self._service = apiclient.discovery.build("sheets", "v4", http=self._http_auth)
 
-    def _pop_sheet_title(self):
+    def _pop_sheet_title(self) -> str and list:
         keys = self._sheet_attributes.keys()
         titles = list(keys)
         sheet_title = titles[len(keys) - len(self._created_sheets) - 1]
@@ -119,7 +119,7 @@ class SpreadsheetHandler:
     def _get_first_column_sheet_range(self, spreadsheet_title: str):
         return self._get_sheet_range(spreadsheet_title, "A1", "A1000")
 
-    def _update_spreadsheet_row(self, spreadsheet_title: str, row_number: int, values: List[str]):
+    def _update_spreadsheet_row(self, spreadsheet_title: str, row_number: int, values: List[str]) -> None:
         self._service.spreadsheets().values().batchUpdate(
             spreadsheetId=self._spreadsheet_id,
             body={
