@@ -9,7 +9,7 @@ class SpreadsheetHandler:
         self._spreadsheet_id = spreadsheet_id
         self._credentials_file = file_name
         self._sheet_attributes = sheet_attributes
-        self._created_sheets = list()
+        self._created_sheets = []
 
         self._credentials = ServiceAccountCredentials.from_json_keyfile_name(
             self._credentials_file,
