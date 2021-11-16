@@ -42,7 +42,9 @@ class TestSpreadsheetTeachers(TestSpreadsheet):
         self.assertEqual(teacher2.get("username"), "teacher2")
         self.assertEqual(len(teacher_usernames), 3)
 
-        self.handler.remove_teacher("teacher2")
+        self.assertFalse(self.handler.remove_teacher("unknown"))
+        self.assertTrue(self.handler.remove_teacher("teacher2"))
+
         teacher2 = self.handler.get_teacher_by_username("teacher2")
         teacher_usernames = self.handler.get_teacher_usernames()
 

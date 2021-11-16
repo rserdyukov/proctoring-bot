@@ -16,7 +16,7 @@ class TestSpreadsheetStudents(TestSpreadsheet):
         self.assertEqual(student.get("username"), username)
         self.assertEqual(student.get("ФИО"), name)
         self.assertEqual(student.get("Группа"), group)
-        self.assertEqual(student.get("Подруппа"), subgroup)
+        self.assertEqual(student.get("Подгруппа"), subgroup)
 
     def test_add_five_students(self):
         self.handler.add_student("student1", "name1", "group1", "subgroup1")
@@ -49,7 +49,8 @@ class TestSpreadsheetStudents(TestSpreadsheet):
         self.assertEqual(student2.get("username"), "student2")
         self.assertEqual(len(student_usernames), 3)
 
-        self.handler.remove_student("student2")
+        self.assertFalse(self.handler.remove_student("unknown"))
+        self.assertTrue(self.handler.remove_student("student2"))
         student2 = self.handler.get_student_by_username("student2")
         student_usernames = self.handler.get_student_usernames()
 
