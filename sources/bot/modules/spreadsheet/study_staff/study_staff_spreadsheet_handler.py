@@ -35,7 +35,7 @@ class StudyStaffSpreadsheetHandler:
     def get_student_usernames(self) -> List[str]:
         return self._handler.get_first_column_sheet_range(self._student_sheet_title)
 
-    def get_student_by_username(self, username: str):
+    def get_student_by_username(self, username: str) -> dict:
         return self._handler.get_row_by_first_element(self._student_sheet_title, username)
 
     def add_teacher(self, username: str, *args) -> None:
@@ -52,5 +52,5 @@ class StudyStaffSpreadsheetHandler:
     def get_teacher_usernames(self) -> List[str]:
         return self._handler.get_first_column_sheet_range(self._teacher_sheet_title)
 
-    def get_teacher_by_username(self, username: str):
+    def get_teacher_by_username(self, username: str) -> dict:
         return self._handler.get_row_by_first_element(self._teacher_sheet_title, username)
