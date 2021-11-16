@@ -3,17 +3,13 @@ import apiclient
 from oauth2client.service_account import ServiceAccountCredentials
 from typing import List, Dict
 
-from bot.loggers import LogInstaller
-
 
 class SpreadsheetHandler:
-    _logger = LogInstaller.get_default_logger(__name__, LogInstaller.DEBUG)
-
     def __init__(self, spreadsheet_id, file_name: str, sheet_attributes: Dict[str, List[str]]):
         self._spreadsheet_id = spreadsheet_id
         self._credentials_file = file_name
         self._sheet_attributes = sheet_attributes
-        self._created_sheets = list()
+        self._created_sheets = []
 
         self._credentials = ServiceAccountCredentials.from_json_keyfile_name(
             self._credentials_file,
@@ -22,7 +18,7 @@ class SpreadsheetHandler:
         self._http_auth = self._credentials.authorize(httplib2.Http())
         self._service = apiclient.discovery.build("sheets", "v4", http=self._http_auth)
 
-    def _pop_sheet_title(self):
+    def _pop_sheet_title(self) -> str and list:
         keys = self._sheet_attributes.keys()
         titles = list(keys)
         sheet_title = titles[len(keys) - len(self._created_sheets) - 1]
@@ -87,9 +83,8 @@ class SpreadsheetHandler:
         )
 
         self._spreadsheet_id = spreadsheet["spreadsheetId"]
-        self._logger.debug(
-            f"Open spreadsheet in https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0"
-        )
+
+        print(f"Open spreadsheet in https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0")
 
         self._service.spreadsheets().values().batchUpdate(
             spreadsheetId=self._spreadsheet_id,
@@ -126,7 +121,7 @@ class SpreadsheetHandler:
     def _get_first_column_sheet_range(self, spreadsheet_title: str):
         return self._get_sheet_range(spreadsheet_title, "A1", "A1000")
 
-    def _update_spreadsheet_row(self, spreadsheet_title: str, row_number: int, values: List[str]):
+    def _update_spreadsheet_row(self, spreadsheet_title: str, row_number: int, values: List[str]) -> None:
         self._service.spreadsheets().values().batchUpdate(
             spreadsheetId=self._spreadsheet_id,
             body={
@@ -157,9 +152,13 @@ class SpreadsheetHandler:
 
         self._update_spreadsheet_row(spreadsheet_title, row_number, row)
 
-    def remove_row(self, spreadsheet_title: str, first_row_element: str) -> None:
+    def remove_row(self, spreadsheet_title: str, first_row_element: str) -> bool:
         results = self._get_first_column_sheet_range(spreadsheet_title)
         sheet_values = results["valueRanges"][0]["values"]
+
+        if sheet_values.count([first_row_element]) == 0:
+            return False
+
         row_number = sheet_values.index([first_row_element]) + 1
 
         empty_string_list = []
@@ -167,11 +166,12 @@ class SpreadsheetHandler:
             empty_string_list.append("")
 
         self._update_spreadsheet_row(spreadsheet_title, row_number, empty_string_list)
+        return True
 
     def get_first_column_sheet_range(self, spreadsheet_title: str) -> list:
         results = self._get_first_column_sheet_range(spreadsheet_title)
         sheet_values = results["valueRanges"][0]["values"]
-        return sheet_values
+        return list(filter(lambda v: v != [], sheet_values[1:]))
 
     def get_row_by_first_element(self, spreadsheet_title: str, element: str) -> dict:
         alphabet_start_index = 64
