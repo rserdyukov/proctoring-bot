@@ -152,9 +152,13 @@ class SpreadsheetHandler:
 
         self._update_spreadsheet_row(spreadsheet_title, row_number, row)
 
-    def remove_row(self, spreadsheet_title: str, first_row_element: str) -> None:
+    def remove_row(self, spreadsheet_title: str, first_row_element: str) -> bool:
         results = self._get_first_column_sheet_range(spreadsheet_title)
         sheet_values = results["valueRanges"][0]["values"]
+
+        if sheet_values.count([first_row_element]) == 0:
+            return False
+
         row_number = sheet_values.index([first_row_element]) + 1
 
         empty_string_list = []
@@ -162,6 +166,7 @@ class SpreadsheetHandler:
             empty_string_list.append("")
 
         self._update_spreadsheet_row(spreadsheet_title, row_number, empty_string_list)
+        return True
 
     def get_first_column_sheet_range(self, spreadsheet_title: str) -> list:
         results = self._get_first_column_sheet_range(spreadsheet_title)
