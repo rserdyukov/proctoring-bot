@@ -5,13 +5,13 @@ from bot.modules.spreadsheet.spreadsheet_handler import SpreadsheetHandler
 
 class StudyStaffSpreadsheetHandler:
     def __init__(self, spreadsheet_id: str, file_name: str):
-        self._attributes = {
+        _attributes = {
             "Студенты": ["username", "ФИО", "Группа", "Подгруппа"],
             "Преподаватели": ["username", "ФИО"],
         }
-        self._handler = SpreadsheetHandler(spreadsheet_id, file_name, self._attributes)
-        self._student_sheet_title = list(self._attributes.keys())[0]
-        self._teacher_sheet_title = list(self._attributes.keys())[1]
+        self._handler = SpreadsheetHandler(spreadsheet_id, file_name, _attributes)
+        self._student_sheet_title = list(_attributes.keys())[0]
+        self._teacher_sheet_title = list(_attributes.keys())[1]
 
     def create_spreadsheet(self, spreadsheet_title="Информация о людях", row_count=1000, column_count=10) -> None:
         self._handler.create_spreadsheet(spreadsheet_title, row_count, column_count)
