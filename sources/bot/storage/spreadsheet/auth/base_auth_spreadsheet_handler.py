@@ -2,9 +2,10 @@ from abc import ABCMeta, abstractmethod
 from typing import List
 
 from bot.exceptions import SpreadsheetHandlerException
+from bot.storage.spreadsheet.base_spreadsheet_handler import BaseSpreadsheetHandler
 
 
-class BaseStudyStaffSpreadsheetHandler:
+class BaseAuthSpreadsheetHandler(BaseSpreadsheetHandler):
     __metaclass__ = ABCMeta
 
     @abstractmethod

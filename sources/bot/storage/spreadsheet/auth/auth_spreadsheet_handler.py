@@ -1,11 +1,12 @@
 from typing import List
 
 from bot.exceptions import InvalidSpreadsheetAttributeException
-from bot.modules.spreadsheet.spreadsheet_handler import SpreadsheetHandler
-from bot.modules.spreadsheet.study_staff.base_study_staff_spreadsheet_handler import BaseStudyStaffSpreadsheetHandler
+from bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
+from bot.storage.spreadsheet.spreadsheet_handler import SpreadsheetHandler
+from bot.storage.spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
 
 
-class StudyStaffSpreadsheetHandler(BaseStudyStaffSpreadsheetHandler):
+class AuthSpreadsheetHandler(BaseAuthSpreadsheetHandler):
     def __init__(self, spreadsheet_id: str, file_name: str):
         _attributes = {
             "Студенты": ["username", "ФИО", "Группа", "Подгруппа"],
@@ -55,3 +56,6 @@ class StudyStaffSpreadsheetHandler(BaseStudyStaffSpreadsheetHandler):
 
     def get_teacher_by_username(self, username: str) -> dict:
         return self._handler.get_row_by_first_element(self._teacher_sheet_title, username)
+
+    def accept_storage(self, storage: BaseSpreadsheetStorage):
+        storage.visit_auth_handler(self)
