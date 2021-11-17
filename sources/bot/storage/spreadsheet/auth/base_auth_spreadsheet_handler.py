@@ -4,7 +4,7 @@ from typing import List
 from bot.exceptions import SpreadsheetHandlerException
 
 
-class BaseStudyStaffSpreadsheetHandler:
+class BaseAuthSpreadsheetHandler:
     __metaclass__ = ABCMeta
 
     @abstractmethod
