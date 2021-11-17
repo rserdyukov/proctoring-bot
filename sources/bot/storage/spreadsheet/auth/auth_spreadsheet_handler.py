@@ -1,8 +1,9 @@
 from typing import List
 
 from bot.exceptions import InvalidSpreadsheetAttributeException
+from bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
 from bot.storage.spreadsheet.spreadsheet_handler import SpreadsheetHandler
-from bot.storage.spreadsheet.study_staff.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
+from bot.storage.spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
 
 
 class AuthSpreadsheetHandler(BaseAuthSpreadsheetHandler):
@@ -55,3 +56,6 @@ class AuthSpreadsheetHandler(BaseAuthSpreadsheetHandler):
 
     def get_teacher_by_username(self, username: str) -> dict:
         return self._handler.get_row_by_first_element(self._teacher_sheet_title, username)
+
+    def accept_storage(self, storage: BaseSpreadsheetStorage):
+        storage.visit_auth_handler(self)
