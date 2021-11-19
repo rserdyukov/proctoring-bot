@@ -1,10 +1,7 @@
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-
-from bot.modules.standard_handlers_factory import StandardHandlersFactory
-from bot.tools.config import BaseConfigurator
-from bot.proctoring_bot import ProctoringBot
+from tools.configurator.bot_configurator import BotConfigurator
+from tools.config.config import Config
 
 if __name__ == "__main__":
-    config = BaseConfigurator("settings.ini")
-    bot = ProctoringBot(config, StandardHandlersFactory(), MemoryStorage())
+    config = Config("settings.ini")
+    bot = BotConfigurator(config).create_bot()
     bot.run()
