@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from bot.loggers import LogInstaller
+from bot.modules.chains.main.main_handlers_chain import MainHandlersChain
 from bot.modules.handlers_chain import HandlersChain
 from bot.modules.handlers_registrar import HandlersRegistrar as Registrar
 
@@ -45,7 +46,7 @@ class AuthHandlersChain(HandlersChain):
     @Registrar.message_handler(lambda message: len(message.text.split(" ")) == 3, state=AuthStates.fio)
     async def process_fio_handler(message: types.Message, state: FSMContext):
         await AuthStates.next()
-        await state.update_data(fio=message.text)
+        await state.update_data(auth={"name": message.text})
 
         await message.reply("Укажите номер группы.")
 
@@ -53,7 +54,10 @@ class AuthHandlersChain(HandlersChain):
     @Registrar.message_handler(state=AuthStates.group)
     async def process_group_handler(message: types.Message, state: FSMContext):
         await AuthStates.next()
-        await state.update_data(group=message.text)
+
+        data = await state.get_data()
+        data["auth"]["group"] = message.text
+        await state.update_data(auth=data["auth"])
 
         await message.reply("Укажите номер подгруппы.")
 
@@ -62,24 +66,10 @@ class AuthHandlersChain(HandlersChain):
     async def process_subgroup_handler(message: types.Message, state: FSMContext):
         AuthHandlersChain._logger.debug(f"Finite auth conversation state")
         await AuthStates.next()
-        await state.update_data(subgroup=message.text)
 
         data = await state.get_data()
-        fio = data["fio"]
-        group = data["group"]
-        subgroup = data["subgroup"]
+        auth_data = data["auth"]
+        auth_data["subgroup"] = message.text
+        await state.update_data(auth=auth_data)
 
-        await message.reply(
-            "Спасибо за регистрацию.\n\n" f"Информация о Вас:\nФИО: {fio}\nГруппа: {group}\nПодгруппа: {subgroup}\n"
-        )
-
-    @staticmethod
-    @Registrar.message_handler(commands=["info"])
-    async def get_info_handler(message: types.Message, state: FSMContext):
-        data = await state.get_data()
-        fio = data.get("fio")
-        group = data.get("group")
-        subgroup = data.get("subgroup")
-
-        await state.finish()
-        await message.reply(f"Информация о Вас:\nФИО: {fio}\nГруппа: {group}\nПодгруппа: {subgroup}\n")
+        await message.reply(f"Спасибо за регистрацию.\n\n{MainHandlersChain.get_info(data)}")
