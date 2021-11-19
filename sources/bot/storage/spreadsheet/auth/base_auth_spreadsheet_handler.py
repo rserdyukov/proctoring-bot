@@ -29,8 +29,8 @@ class BaseAuthSpreadsheetHandler(BaseSpreadsheetHandler):
         raise SpreadsheetHandlerException("Not implemented method")
 
     @abstractmethod
-    def add_teacher(self, username: str, *args):
-        return False
+    def add_teacher(self, username: str, *args) -> None:
+        raise SpreadsheetHandlerException("Not implemented method")
 
     @abstractmethod
     def remove_teacher(self, username: str) -> bool:
