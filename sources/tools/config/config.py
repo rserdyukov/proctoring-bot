@@ -1,7 +1,9 @@
 from configparser import ConfigParser
 
+from tools.config.base_config import BaseConfig
 
-class BaseConfigurator:
+
+class Config(BaseConfig):
     def __init__(self, config_file: str):
         self.config = ConfigParser()
         self.config.read(config_file)

@@ -9,8 +9,7 @@ class StateMachine(Dispatcher):
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.INFO)
 
     def __init__(self, bot, storage):
-        if bot is not None:
-            # todo: Implement SpreadsheetStorage(MemoryStorage)
+        if bot and storage:
             super().__init__(bot, storage=storage)
             self.middleware.setup(LoggingMiddleware())
 

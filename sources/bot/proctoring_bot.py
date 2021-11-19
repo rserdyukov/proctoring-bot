@@ -1,18 +1,16 @@
 from aiogram import Bot
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from bot.loggers import LogInstaller
-from bot.modules.handlers_factory import HandlersFactory
+from bot.modules.factory.handlers_factory import HandlersFactory
 from bot.state_machine import StateMachine
-from bot.tools.config import BaseConfigurator
+from bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
 
 
 class ProctoringBot(Bot):
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.INFO)
 
-    def __init__(self, configurator: BaseConfigurator, factory: HandlersFactory, storage: MemoryStorage):
-        super().__init__(configurator.get_bot_option("token"))
-        self._users_spreadsheet = configurator.get_spreadsheet_option("spreadsheet_id")
+    def __init__(self, token, factory: HandlersFactory, storage: BaseSpreadsheetStorage):
+        super().__init__(token)
         self._machine = StateMachine(self, storage)
         self._factory = factory
 

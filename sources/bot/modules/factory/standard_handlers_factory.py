@@ -3,7 +3,7 @@ from bot.modules.chains.auth.auth_handlers_chain import AuthHandlersChain
 from bot.modules.handlers_registrar import HandlersRegistrar
 from bot.modules.chains.main.main_handlers_chain import MainHandlersChain
 from bot.state_machine import StateMachine
-from bot.modules.handlers_factory import HandlersFactory
+from bot.modules.factory.handlers_factory import HandlersFactory
 
 
 class StandardHandlersFactory(HandlersFactory):
