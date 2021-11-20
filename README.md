@@ -3,21 +3,16 @@
 The bot allows tracking new chat users, manage and give them tasks.
 
 ***
-**To run bot on Linux:** 
 
-First you need to write **settings.ini** in sources by setting.ini.example. After you need to run:
+### Run documentation
+**Run on Linux:**
 
-<pre>
-cd scripts
-./run_bot.sh
-</pre>
+```shell
+cd proctoring-bot
+pip3 install mkdocs markdown-include mkdocs-material
+mkdocs serve
+```
 
-***
+Then open http://127.0.0.1:8000/ in your browser.
 
-### Developing
-
-**To check bot sources code style:**
-<pre>
-./check_code_style.sh
-</pre>
 ***
