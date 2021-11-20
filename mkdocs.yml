@@ -1,0 +1,30 @@
+site_name: Proctoring bot
+
+repo_url: https://github.com/rserdyukov/proctoring-bot
+
+edit_uri: ""
+
+theme:
+  material
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - pymdownx.details
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - User Guide:
+    - Overview: user/index.md
+    - Launch on Linux: user/linux-launch.md
+  - Developer Guide:
+    - Overview: develop/index.md
+    - Pull requests: develop/pr.md
+    - Code style: develop/codestyle.md
+    - Project structure: develop/project-structure.md
+  - About:
+    - Release Notes: about/release-notes.md
