@@ -15,7 +15,7 @@ class BotConfigurator(BaseBotConfigurator):
         storage_factory = SpreadsheetStorageFactory()
         storage = storage_factory.create_storage()
 
-        self._config_auth_handler(storage_factory)
+        storage.visit_auth_handler(self._config_auth_handler(storage_factory))
         self._config_works_handler(storage_factory)
         self._config_tests_handler(storage_factory)
 
@@ -24,7 +24,7 @@ class BotConfigurator(BaseBotConfigurator):
     def _config_auth_handler(self, storage_factory: SpreadsheetStorageFactory):
         spreadsheet_id = self._config.get_spreadsheet_option("auth_id")
         token = self._config.get_spreadsheet_option("auth_token")
-        storage_factory.init_auth_handler(spreadsheet_id, token)
+        return storage_factory.init_auth_handler(spreadsheet_id, token)
 
     def _config_works_handler(self, storage_factory: SpreadsheetStorageFactory):
         pass
