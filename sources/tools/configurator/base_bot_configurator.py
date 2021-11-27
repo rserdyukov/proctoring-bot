@@ -1,9 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
-from aiogram import Bot
-
+from bot.bot import Bot
 from bot.modules.factory.handlers_factory import HandlersFactory
-from bot.proctoring_bot import ProctoringBot
 from bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
 
 
