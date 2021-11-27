@@ -5,7 +5,7 @@ from typing import List, Dict
 
 
 class SpreadsheetHandler:
-    def __init__(self, spreadsheet_id, file_name: str, sheet_attributes: Dict[str, List[str]]):
+    def __init__(self, spreadsheet_id: str, file_name: str, sheet_attributes: Dict[str, List[str]]):
         self._spreadsheet_id = spreadsheet_id
         self._credentials_file = file_name
         self._sheet_attributes = sheet_attributes
@@ -17,6 +17,11 @@ class SpreadsheetHandler:
         )
         self._http_auth = self._credentials.authorize(httplib2.Http())
         self._service = apiclient.discovery.build("sheets", "v4", http=self._http_auth)
+
+        if len(spreadsheet_id) != 0:
+            print(
+                f"Open existing spreadsheet at https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0"
+            )
 
     def _pop_sheet_title(self) -> str and list:
         keys = self._sheet_attributes.keys()
@@ -84,7 +89,7 @@ class SpreadsheetHandler:
 
         self._spreadsheet_id = spreadsheet["spreadsheetId"]
 
-        print(f"Open spreadsheet in https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0")
+        print(f"Created new spreadsheet at https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0")
 
         self._service.spreadsheets().values().batchUpdate(
             spreadsheetId=self._spreadsheet_id,

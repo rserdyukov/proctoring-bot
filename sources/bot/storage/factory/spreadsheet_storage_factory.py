@@ -17,17 +17,14 @@ class SpreadsheetStorageFactory(StorageFactory):
     @staticmethod
     def init_auth_handler(spreadsheet_id, token_file_name) -> BaseAuthSpreadsheetHandler:
         auth_handler = AuthSpreadsheetHandler(spreadsheet_id, token_file_name)
-        auth_handler.create_spreadsheet()
         return auth_handler
 
     @staticmethod
     def init_works_handler(spreadsheet_id, token_file_name) -> BaseWorksSpreadsheetHandler:
         auth_handler = WorksSpreadsheetHandler(spreadsheet_id, token_file_name)
-        auth_handler.create_spreadsheet()
         return auth_handler
 
     @staticmethod
     def init_tests_handler(spreadsheet_id, token_file_name) -> BaseTestsSpreadsheetHandler:
         auth_handler = TestsSpreadsheetHandler(spreadsheet_id, token_file_name)
-        auth_handler.create_spreadsheet()
         return auth_handler
