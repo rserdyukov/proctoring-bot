@@ -1,5 +1,4 @@
-from aiogram import Bot
-
+from bot.bot import Bot
 from bot.loggers import LogInstaller
 from bot.modules.factory.handlers_factory import HandlersFactory
 from bot.state_machine import StateMachine

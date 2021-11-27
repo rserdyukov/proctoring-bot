@@ -1,5 +1,4 @@
-from aiogram import Bot
-
+from bot.bot import Bot
 from bot.modules.factory.handlers_factory import HandlersFactory
 from bot.modules.factory.standard_handlers_factory import StandardHandlersFactory
 from bot.proctoring_bot import ProctoringBot
