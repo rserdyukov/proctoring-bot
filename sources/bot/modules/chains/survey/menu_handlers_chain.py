@@ -41,7 +41,7 @@ class MenuHandlersChain(HandlersChain):
 
     @staticmethod
     @Registrar.message_handler(commands=["survey"])
-    async def cancel_handler(message: types.Message, state: FSMContext):
+    async def show_menu_handler(message: types.Message, state: FSMContext):
         current_state = await state.get_state()
         data = await state.get_data()
         if data["type"] == "student":
