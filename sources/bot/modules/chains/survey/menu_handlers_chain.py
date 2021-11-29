@@ -10,7 +10,8 @@ from bot.modules.keyboard.keyboard import KeyboardBuilder
 
 
 class GeneralSurveyStates(StatesGroup):
-    pass
+    teacher_survey = State()
+    student_survey = State()
 
 
 class MenuKeyboardBuilder:
@@ -45,10 +46,10 @@ class MenuHandlersChain(HandlersChain):
         current_state = await state.get_state()
         data = await state.get_data()
         if data["type"] == "student":
-
+            await GeneralSurveyStates.student_survey.set()
             await message.answer("Привет, студент!", reply_markup=MenuKeyboardBuilder.get_student_keyboard())
         elif data["type"] == "teacher":
+            await GeneralSurveyStates.teacher_survey.set()
             await message.answer("Привет, преподаватель!!", reply_markup=MenuKeyboardBuilder.get_teacher_keyboard())
         else:
             await message.answer("Что-то пошло не так :(")
-        # MenuHandlersChain._logger.debug(f"Cancel auth conversation state {current_state}")
