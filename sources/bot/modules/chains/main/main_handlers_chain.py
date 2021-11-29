@@ -1,6 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup
+from aiogram.types import ChatType
 
 from bot.loggers import LogInstaller
 from bot.modules.handlers_chain import HandlersChain
@@ -14,7 +15,7 @@ class MainStates(StatesGroup):
 
 class MainKeyboardsBuilder:
     @staticmethod
-    def get_start_keyboard():
+    def get_private_start_keyboard():
         return KeyboardBuilder.get_inline_keyboard_markup(
             [
                 {
@@ -38,21 +39,34 @@ class MainHandlersChain(HandlersChain):
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.DEBUG)
 
     @staticmethod
-    @Registrar.message_handler(commands="start")
+    @Registrar.message_handler(chat_type=ChatType.GROUP, commands="start")
     async def start_handler(message: types.Message, state: FSMContext):
-        MainHandlersChain._logger.debug(f"Start main conversation state")
+        MainHandlersChain._logger.debug(f"Start main group conversation state")
+
+        data = await state.get_data()
+        if data.get("auth") is None or len(data.get("auth").keys()) != 3:
+            bot = Registrar.bot
+            me = await bot.get_me()
+            text = f"Привет, {message.from_user.first_name}!\nПройдите, пожалуйста, регистрацию\n\n@{me.username}"
+        else:
+            text = f"Привет, {message.from_user.first_name}\nВы уже зарегестрированы"
+
+        await message.reply(text)
+
+    @staticmethod
+    @Registrar.message_handler(chat_type=ChatType.PRIVATE, commands="start")
+    async def start_handler(message: types.Message, state: FSMContext):
+        MainHandlersChain._logger.debug(f"Start main private conversation state")
 
         await state.update_data(username=message.from_user.username)
         data = await state.get_data()
-
-        if data.get("auth") is None or data.get("auth") == {}:
-            text = f"Привет, {message.from_user.first_name}!" f"\nПройдите, пожалуйста, регистрацию."
-            keyboard_markup = MainKeyboardsBuilder.get_start_keyboard()
+        if data.get("auth") is None or len(data.get("auth").keys()) != 3:
+            text = f"Привет, {message.from_user.first_name}!\nНачнём регистрацию\n"
+            keyboard_markup = MainKeyboardsBuilder.get_private_start_keyboard()
         else:
-            text = f"Привет, {message.from_user.first_name}."
+            text = f"Привет, {message.from_user.first_name}\nВы уже зарегестрированы"
             keyboard_markup = MainKeyboardsBuilder.get_info_keyboard()
 
-        # todo: Implement auth expectation handlers chain
         await message.reply(text, reply_markup=keyboard_markup)
 
     @staticmethod
