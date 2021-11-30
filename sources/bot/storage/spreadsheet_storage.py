@@ -2,6 +2,7 @@ import copy
 from typing import Dict
 
 from bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
+from bot.storage.spreadsheet.auth.auth_spreadsheet_handler import AuthSpreadsheetHandler
 from bot.storage.spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
 from bot.storage.spreadsheet.tests.tests_spreadsheet_handler import TestsSpreadsheetHandler
 from bot.storage.spreadsheet.works.works_spreadsheet_handler import WorksSpreadsheetHandler
@@ -42,14 +43,10 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
     async def _upload_register_data(self, user_data):
         auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
-
-        username = user_data.get("user_data")
-        if user_data.get("username") is None:
-            return
-
+        username = user_data.get("username")
         auth_data = user_data.get("auth")
 
-        if auth_data is not None:
+        if auth_data != {}:
             return
         else:
             student = auth_handler.get_student_by_username(username)
