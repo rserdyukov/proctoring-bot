@@ -40,7 +40,16 @@ class AuthSpreadsheetHandler(BaseAuthSpreadsheetHandler):
         return self._handler.get_first_column_sheet_range(self._student_sheet_title)
 
     def get_student_by_username(self, username: str) -> dict:
-        return self._handler.get_row_by_first_element(self._student_sheet_title, username)
+        student = {}
+        data = self._handler.get_row_by_first_element(self._student_sheet_title, username)
+        name = data.get("ФИО")
+        group = data.get("Группа")
+        subgroup = data.get("Подгруппа")
+
+        if name and group and subgroup:
+            student.update(name=name, group=group, subgroup=subgroup)
+
+        return student
 
     def add_teacher(self, username: str, **kwargs) -> None:
         name = kwargs.get("name")
@@ -57,7 +66,14 @@ class AuthSpreadsheetHandler(BaseAuthSpreadsheetHandler):
         return self._handler.get_first_column_sheet_range(self._teacher_sheet_title)
 
     def get_teacher_by_username(self, username: str) -> dict:
-        return self._handler.get_row_by_first_element(self._teacher_sheet_title, username)
+        teacher = {}
+        data = self._handler.get_row_by_first_element(self._teacher_sheet_title, username)
+        name = data.get("ФИО")
+
+        if name:
+            teacher.update(name=name)
+
+        return teacher
 
     def accept_storage(self, storage: BaseSpreadsheetStorage):
         storage.visit_auth_handler(self)
