@@ -42,14 +42,10 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
     async def _upload_register_data(self, user_data):
         auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
-
-        username = user_data.get("user_data")
-        if user_data.get("username") is None:
-            return
-
+        username = user_data.get("username")
         auth_data = user_data.get("auth")
 
-        if auth_data is not None:
+        if auth_data != {}:
             return
         else:
             student = auth_handler.get_student_by_username(username)
