@@ -1,26 +1,45 @@
+"""
+Bot students and teachers authorization handlers chain implementation module.
+"""
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
-from bot.loggers import LogInstaller
-from bot.modules.chains.main.main_handlers_chain import MainHandlersChain
-from bot.modules.handlers_chain import HandlersChain
-from bot.modules.handlers_registrar import HandlersRegistrar as Registrar
+from ....loggers import LogInstaller
+from ...chains.main.main_handlers_chain import MainHandlersChain
+from ...handlers_chain import HandlersChain
+from ...handlers_registrar import HandlersRegistrar as Registrar
 
 
 class AuthStates(StatesGroup):
+    """
+    Bot students and teachers authorization handlers chain states class implementation.
+    """
+
     fio = State()
     group = State()
     subgroup = State()
 
 
 class AuthHandlersChain(HandlersChain):
+    """
+    Bot students and teachers authorization handlers chain class implementation.
+    """
+
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.DEBUG)
 
     @staticmethod
     @Registrar.callback_query_handler(text="auth")
     async def start_handler(query: types.CallbackQuery):
-        AuthHandlersChain._logger.debug(f"Start auth conversation state")
+        """
+        Asks student or teacher name in registration process.
+
+        Note: Handler may be started if authorization button has been pressed.
+
+        :param query: Callback query message
+        :type query: :obj:`types.CallbackQuery`
+        """
+        AuthHandlersChain._logger.debug("Start auth conversation state")
         await AuthStates.fio.set()
 
         await Registrar.bot.send_message(query.from_user.id, "Введите ваше ФИО.")
@@ -28,6 +47,17 @@ class AuthHandlersChain(HandlersChain):
     @staticmethod
     @Registrar.message_handler(commands=["cancel"], state="*")
     async def cancel_handler(message: types.Message, state: FSMContext):
+        """
+        Cancels conversation by 'cancel' command.
+
+        Note: Handler may be started everywhere.
+
+        :param message: User message data
+        :type message: :obj:`types.Message`
+
+        :param state: User state machine context
+        :type state: :obj:`FSMContext`
+        """
         current_state = await state.get_state()
         if current_state is None:
             return
@@ -40,11 +70,30 @@ class AuthHandlersChain(HandlersChain):
     @staticmethod
     @Registrar.message_handler(lambda message: len(message.text.split(" ")) != 3, state=AuthStates.fio)
     async def wrong_fio_handler(message: types.Message):
+        """
+        Notifies student or teacher about incorrect name format.
+
+        Note: Handler may be started after incorrect name input by student or teacher.
+
+        :param message: User message data
+        :type message: :obj:`types.Message`
+        """
         return await message.reply("Вы неправильно ввели имя! (Укажите полное ФИО.)")
 
     @staticmethod
     @Registrar.message_handler(lambda message: len(message.text.split(" ")) == 3, state=AuthStates.fio)
     async def process_fio_handler(message: types.Message, state: FSMContext):
+        """
+        Asks student or teacher group in registration process.
+
+        Note: Handler may be started after correct name input by student or teacher.
+
+        :param message: User message data
+        :type message: :obj:`types.Message`
+
+        :param state: User state machine context
+        :type state: :obj:`FSMContext`
+        """
         await AuthStates.next()
         await state.update_data(auth={"name": message.text})
 
@@ -53,6 +102,17 @@ class AuthHandlersChain(HandlersChain):
     @staticmethod
     @Registrar.message_handler(state=AuthStates.group)
     async def process_group_handler(message: types.Message, state: FSMContext):
+        """
+        Asks student subgroup in registration process.
+
+        Note: Handler may be started after group input by student.
+
+        :param message: User message data
+        :type message: :obj:`types.Message`
+
+        :param state: User state machine context
+        :type state: :obj:`FSMContext`
+        """
         await AuthStates.next()
 
         data = await state.get_data()
@@ -64,7 +124,18 @@ class AuthHandlersChain(HandlersChain):
     @staticmethod
     @Registrar.message_handler(state=AuthStates.subgroup)
     async def process_subgroup_handler(message: types.Message, state: FSMContext):
-        AuthHandlersChain._logger.debug(f"Finite auth conversation state")
+        """
+        Greets student for registration process.
+
+        Note: Handler may be started after subgroup input by student.
+
+        :param message: User message data
+        :type message: :obj:`types.Message`
+
+        :param state: User state machine context
+        :type state: :obj:`FSMContext`
+        """
+        AuthHandlersChain._logger.debug("Finite auth conversation state")
         await AuthStates.next()
 
         data = await state.get_data()

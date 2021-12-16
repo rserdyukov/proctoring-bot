@@ -1,6 +1,6 @@
-from bot.exceptions import InvalidSpreadsheetAttributeException
-from bot.storage.spreadsheet.spreadsheet_handler import SpreadsheetHandler
-from bot.storage.spreadsheet.works.base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
+from ....exceptions import InvalidSpreadsheetAttributeException
+from ..spreadsheet_handler import SpreadsheetHandler
+from .base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
 
 
 class WorksSpreadsheetHandler(BaseWorksSpreadsheetHandler):

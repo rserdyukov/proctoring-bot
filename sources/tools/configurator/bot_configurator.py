@@ -1,14 +1,21 @@
-from bot.bot import Bot
-from bot.modules.factory.handlers_factory import HandlersFactory
-from bot.modules.factory.standard_handlers_factory import StandardHandlersFactory
-from bot.proctoring_bot import ProctoringBot
-from bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
-from bot.storage.factory.spreadsheet_storage_factory import SpreadsheetStorageFactory
-from tools.configurator.base_bot_configurator import BaseBotConfigurator
-from tools.config.base_config import BaseConfig
+"""
+Bot configurator implementation module.
+"""
+from ...bot.bot import Bot
+from ...bot.modules.factory.handlers_factory import HandlersFactory
+from ...bot.modules.factory.standard_handlers_factory import StandardHandlersFactory
+from ...bot.proctoring_bot import ProctoringBot
+from ...bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
+from ...bot.storage.factory.spreadsheet_storage_factory import SpreadsheetStorageFactory
+from .base_bot_configurator import BaseBotConfigurator
+from ..config.base_config import BaseConfig
 
 
 class BotConfigurator(BaseBotConfigurator):
+    """
+    Bot configurator class implementation.
+    """
+
     def __init__(self, config: BaseConfig):
         self._config = config
 

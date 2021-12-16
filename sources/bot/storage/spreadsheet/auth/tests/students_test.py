@@ -1,6 +1,6 @@
 import unittest
 
-from bot.storage.spreadsheet.auth.tests.spreadsheet_test import TestSpreadsheet
+from ..tests.spreadsheet_test import TestSpreadsheet
 
 
 class TestSpreadsheetStudents(TestSpreadsheet):
