@@ -1,4 +1,4 @@
-from bot.storage.spreadsheet.tests.base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
+from .base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
 
 
 class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
