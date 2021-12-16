@@ -1,15 +1,22 @@
-from bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
-from bot.storage.spreadsheet.auth.auth_spreadsheet_handler import AuthSpreadsheetHandler
-from bot.storage.spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
-from bot.storage.spreadsheet.tests.base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
-from bot.storage.spreadsheet.tests.tests_spreadsheet_handler import TestsSpreadsheetHandler
-from bot.storage.spreadsheet.works.base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
-from bot.storage.spreadsheet.works.works_spreadsheet_handler import WorksSpreadsheetHandler
-from bot.storage.spreadsheet_storage import SpreadsheetStorage
-from bot.storage.factory.storage_factory import StorageFactory
+"""
+Spreadsheet storage factory implementation module.
+"""
+from ..base_spreadsheet_storage import BaseSpreadsheetStorage
+from ..spreadsheet.auth.auth_spreadsheet_handler import AuthSpreadsheetHandler
+from ..spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
+from ..spreadsheet.tests.base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
+from ..spreadsheet.tests.tests_spreadsheet_handler import TestsSpreadsheetHandler
+from ..spreadsheet.works.base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
+from ..spreadsheet.works.works_spreadsheet_handler import WorksSpreadsheetHandler
+from ..spreadsheet_storage import SpreadsheetStorage
+from ..factory.storage_factory import StorageFactory
 
 
 class SpreadsheetStorageFactory(StorageFactory):
+    """
+    Spreadsheet storage factory class implementation.
+    """
+
     @staticmethod
     def create_storage() -> BaseSpreadsheetStorage:
         return SpreadsheetStorage()
