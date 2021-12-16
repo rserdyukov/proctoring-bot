@@ -4,6 +4,7 @@ from typing import Dict
 from bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
 from bot.storage.spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
 from bot.storage.spreadsheet.tests.tests_spreadsheet_handler import TestsSpreadsheetHandler
+from bot.storage.spreadsheet.works.base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
 from bot.storage.spreadsheet.works.works_spreadsheet_handler import WorksSpreadsheetHandler
 
 
@@ -75,7 +76,6 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
     async def _update_table(self, user_data):
         username = user_data.get("username")
-
         user_type = user_data.get("type")
         auth_data = user_data.get("auth")
         works_data = user_data.get("works")
@@ -85,9 +85,15 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
             if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
                 await self._register_user(username, user_type, auth_data)
         if works_data is not None:
-            pass
+            if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
+                await self._register_work(username, works_data, auth_data)
+
         if tests_data is not None:
             pass
+
+    async def _register_work(self, username, works_data, auth_data):
+        works_handler: BaseWorksSpreadsheetHandler = self._works_handler
+        works_handler.add_student_work(username, works_data, **auth_data)
 
     async def _register_user(self, username, user_type, auth_data):
         auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
