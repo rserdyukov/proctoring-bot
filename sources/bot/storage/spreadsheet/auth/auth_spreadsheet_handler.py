@@ -1,12 +1,19 @@
+"""
+Students authorization spreadsheet handler implementation module.
+"""
 from typing import List
 
-from bot.exceptions import InvalidSpreadsheetAttributeException
-from bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
-from bot.storage.spreadsheet.spreadsheet_handler import SpreadsheetHandler
-from bot.storage.spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
+from ....exceptions import InvalidSpreadsheetAttributeException
+from ...base_spreadsheet_storage import BaseSpreadsheetStorage
+from ..spreadsheet_handler import SpreadsheetHandler
+from ..auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
 
 
 class AuthSpreadsheetHandler(BaseAuthSpreadsheetHandler):
+    """
+    Students authorization spreadsheet handler class implementation.
+    """
+
     def __init__(self, spreadsheet_id: str, file_name: str):
         _attributes = {
             "Студенты": ["username", "ФИО", "Группа", "Подгруппа"],
@@ -16,10 +23,10 @@ class AuthSpreadsheetHandler(BaseAuthSpreadsheetHandler):
         self._student_sheet_title = list(_attributes.keys())[0]
         self._teacher_sheet_title = list(_attributes.keys())[1]
 
-    def create_spreadsheet(self, spreadsheet_title="Информация о людях", row_count=1000, column_count=10) -> None:
+    def create_spreadsheet(self, spreadsheet_title="Информация о людях", row_count=1000, column_count=10):
         self._handler.create_spreadsheet(spreadsheet_title, row_count, column_count)
 
-    def add_student(self, username: str, **kwargs) -> None:
+    def add_student(self, username: str, **kwargs):
         name = kwargs.get("name")
         group = kwargs.get("group")
         subgroup = kwargs.get("subgroup")

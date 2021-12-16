@@ -1,6 +1,6 @@
 import unittest
 
-from bot.storage.spreadsheet.auth.auth_spreadsheet_handler import AuthSpreadsheetHandler
+from ..auth_spreadsheet_handler import AuthSpreadsheetHandler
 
 
 class TestSpreadsheet(unittest.TestCase):
