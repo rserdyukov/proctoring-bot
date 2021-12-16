@@ -2,6 +2,7 @@ from bot.loggers import LogInstaller
 from bot.modules.chains.auth.auth_handlers_chain import AuthHandlersChain
 from bot.modules.handlers_registrar import HandlersRegistrar
 from bot.modules.chains.main.main_handlers_chain import MainHandlersChain
+from bot.modules.chains.work.work_handlers_chain import WorkHandlersChain
 from bot.state_machine import StateMachine
 from bot.modules.factory.handlers_factory import HandlersFactory
 
@@ -15,6 +16,7 @@ class StandardHandlersFactory(HandlersFactory):
                 [
                     AuthHandlersChain,
                     MainHandlersChain,
+                    WorkHandlersChain,
                 ]
             )
         except TypeError as e:
