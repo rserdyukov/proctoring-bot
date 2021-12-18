@@ -114,6 +114,29 @@ class MainHandlersChain(HandlersChain):
         await message.reply(text, reply_markup=keyboard_markup)
 
     @staticmethod
+    @Registrar.message_handler(commands=["cancel"], state="*")
+    async def cancel_handler(message: types.Message, state: FSMContext):
+        """
+        Cancels conversation by 'cancel' command.
+
+        Note: Handler may be started everywhere.
+
+        :param message: User message data
+        :type message: :obj:`types.Message`
+
+        :param state: User state machine context
+        :type state: :obj:`FSMContext`
+        """
+        current_state = await state.get_state()
+        if current_state is None:
+            return
+
+        MainHandlersChain._logger.debug(f"Cancel {current_state} conversation state")
+
+        await state.finish()
+        await message.reply("Действие отменено")
+
+    @staticmethod
     @Registrar.message_handler(commands=["info"])
     async def get_info_handler(message: types.Message, state: FSMContext):
         """

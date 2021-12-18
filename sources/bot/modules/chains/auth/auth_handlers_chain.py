@@ -45,29 +45,6 @@ class AuthHandlersChain(HandlersChain):
         await Registrar.bot.send_message(query.from_user.id, "Введите ваше ФИО.")
 
     @staticmethod
-    @Registrar.message_handler(commands=["cancel"], state="*")
-    async def cancel_handler(message: types.Message, state: FSMContext):
-        """
-        Cancels conversation by 'cancel' command.
-
-        Note: Handler may be started everywhere.
-
-        :param message: User message data
-        :type message: :obj:`types.Message`
-
-        :param state: User state machine context
-        :type state: :obj:`FSMContext`
-        """
-        current_state = await state.get_state()
-        if current_state is None:
-            return
-
-        AuthHandlersChain._logger.debug(f"Cancel auth conversation state {current_state}")
-
-        await state.finish()
-        await message.reply("Спасибо за регистрацию.")
-
-    @staticmethod
     @Registrar.message_handler(lambda message: len(message.text.split(" ")) != 3, state=AuthStates.fio)
     async def wrong_fio_handler(message: types.Message):
         """
