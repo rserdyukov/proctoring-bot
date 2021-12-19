@@ -22,7 +22,7 @@ class SurveyTeacherKeyboardBuilder:
             [
                 {
                     "Отправить": "send_survey",
-                    "Не отправлять": "cancel_survey"
+                    "Вернуться": "cancel_survey"
                 }
             ]
         )
