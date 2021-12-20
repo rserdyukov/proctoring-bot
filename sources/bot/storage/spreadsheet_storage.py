@@ -6,9 +6,8 @@ from typing import Dict
 
 from .base_spreadsheet_storage import BaseSpreadsheetStorage
 from .spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
-from .spreadsheet.tests.tests_spreadsheet_handler import TestsSpreadsheetHandler
+from .spreadsheet.tests.base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
 from .spreadsheet.works.base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
-from .spreadsheet.works.works_spreadsheet_handler import WorksSpreadsheetHandler
 
 
 class SpreadsheetStorage(BaseSpreadsheetStorage):
