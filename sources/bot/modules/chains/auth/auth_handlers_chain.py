@@ -55,7 +55,7 @@ class AuthHandlersChain(HandlersChain):
         :param message: User message data
         :type message: :obj:`types.Message`
         """
-        return await message.reply("Вы неправильно ввели имя! (Укажите полное ФИО.)")
+        return await message.answer("Вы неправильно ввели имя! (Укажите полное ФИО.)")
 
     @staticmethod
     @Registrar.message_handler(lambda message: len(message.text.split(" ")) == 3, state=AuthStates.fio)
@@ -74,7 +74,7 @@ class AuthHandlersChain(HandlersChain):
         await AuthStates.next()
         await state.update_data(auth={"name": message.text})
 
-        await message.reply("Укажите номер группы.")
+        await message.answer("Укажите номер группы.")
 
     @staticmethod
     @Registrar.message_handler(state=AuthStates.group)
@@ -96,7 +96,7 @@ class AuthHandlersChain(HandlersChain):
         data["auth"]["group"] = message.text
         await state.update_data(auth=data["auth"])
 
-        await message.reply("Укажите номер подгруппы.")
+        await message.answer("Укажите номер подгруппы.")
 
     @staticmethod
     @Registrar.message_handler(state=AuthStates.subgroup)
@@ -120,4 +120,4 @@ class AuthHandlersChain(HandlersChain):
         auth_data["subgroup"] = message.text
         await state.update_data(auth=auth_data)
 
-        await message.reply(f"Спасибо за регистрацию.\n\n{MainHandlersChain.get_info(data)}")
+        await message.answer(f"Спасибо за регистрацию.\n\n{MainHandlersChain.get_info(data)}")
