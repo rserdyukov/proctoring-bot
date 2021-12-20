@@ -68,43 +68,50 @@ class MainHandlersChain(HandlersChain):
 
     @staticmethod
     async def _start_routine(message: types.Message, state: FSMContext):
-        await state.update_data(username=message.from_user.username)
+        username = message.from_user.username
+        greeting = f"Привет, {message.from_user.first_name} (@{username}).\n"
+        bot = await Registrar.bot.get_me()
+
+        await state.update_data(username=username)
         data = await state.get_data()
         data_size = len(data.get("auth").keys())
-        greeting = f"Привет, {message.from_user.first_name} (@{message.from_user.username})\n"
-        me = await Registrar.bot.get_me()
-
         not_registered = data_size != 3 and data_size != 1
+
         if not_registered:
-            MainHandlersChain._logger.debug(f"User @{message.from_user.username} is not registered")
-            text = f"{greeting}Вы не зарегистрированы\nПройти регистрацию: @{me.username}"
+            MainHandlersChain._logger.debug(f"User @{username} is not registered")
+            text = f"{greeting}Вы не зарегистрированы.\nПройти регистрацию: @{bot.username}."
             keyboard_markup = MainKeyboardsBuilder.get_private_start_keyboard()
         else:
-            MainHandlersChain._logger.debug(f"User @{message.from_user.username} is registered")
-            text = f"{greeting}Вы уже зарегистрированы\nПодробности: @{me.username}"
+            MainHandlersChain._logger.debug(f"User @{username} is registered")
+            text = f"{greeting}Вы уже зарегистрированы.\nПодробности: @{bot.username}."
             keyboard_markup = MainKeyboardsBuilder.get_info_keyboard()
 
         return text, keyboard_markup, not_registered
 
     @staticmethod
-    async def wait_registration(message: types.Message, state: FSMContext, not_registered):
-        kick_min = 1
+    async def _wait_registration(message: types.Message, state: FSMContext, not_registered):
         if not_registered:
-            MainHandlersChain._logger.debug(f"Start register timer at {kick_min} minutes")
-            await asyncio.sleep(kick_min * 60)
+            MainHandlersChain._logger.debug(f"Start register timer at {Registrar.bot.timeout} minutes")
+            await asyncio.sleep(Registrar.bot.timeout * 60)
 
+        username = message.from_user.username
+        chat_id = message.chat.id
         data = await state.get_data()
+
         if data.get("auth") == {}:
-            MainHandlersChain._logger.debug(f"User @{message.from_user.username} have not been registered")
-            text = f"Регистрация не была пройдена, @{message.from_user.username} удалён из чата"
-            await Registrar.bot.send_message(chat_id=message.chat.id, text=text)
-            await asyncio.sleep(5)
+            text = f"Регистрация не была пройдена, @{username} удалён из чата."
+            await Registrar.bot.send_message(chat_id=chat_id, text=text)
+
+            wait_before_kick_timeout = 5
+            await asyncio.sleep(wait_before_kick_timeout)
             await message.chat.kick(user_id=message.from_user.id)
-            MainHandlersChain._logger.debug(f"User @{message.from_user.username} kicked")
+
+            MainHandlersChain._logger.debug(f"User @{username} kicked")
         elif not_registered:
-            MainHandlersChain._logger.debug(f"User @{message.from_user.username} have been registered")
-            text = f"Регистрация @{message.from_user.username} пройдена успешно"
-            await Registrar.bot.send_message(chat_id=message.chat.id, text=text)
+            text = f"Регистрация @{username} пройдена успешно."
+            await Registrar.bot.send_message(chat_id=chat_id, text=text)
+
+            MainHandlersChain._logger.debug(f"User @{username} have been registered")
 
     @staticmethod
     @Registrar.message_handler(content_types=types.ContentTypes.NEW_CHAT_MEMBERS)
@@ -122,7 +129,7 @@ class MainHandlersChain(HandlersChain):
         text, _, not_registered = await MainHandlersChain._start_routine(message, state)
 
         await Registrar.bot.send_message(chat_id=message.chat.id, text=text)
-        await MainHandlersChain.wait_registration(message, state, not_registered)
+        await MainHandlersChain._wait_registration(message, state, not_registered)
 
     @staticmethod
     @Registrar.message_handler(commands=["start"], chat_type=ChatType.PRIVATE)
