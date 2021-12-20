@@ -28,10 +28,10 @@ class SpreadsheetStorageFactory(StorageFactory):
 
     @staticmethod
     def init_works_handler(spreadsheet_id, token_file_name) -> BaseWorksSpreadsheetHandler:
-        auth_handler = WorksSpreadsheetHandler(spreadsheet_id, token_file_name)
-        return auth_handler
+        works_handler = WorksSpreadsheetHandler(spreadsheet_id, token_file_name)
+        return works_handler
 
     @staticmethod
     def init_tests_handler(spreadsheet_id, token_file_name) -> BaseTestsSpreadsheetHandler:
-        auth_handler = TestsSpreadsheetHandler(spreadsheet_id, token_file_name)
-        return auth_handler
+        tests_handler = TestsSpreadsheetHandler(spreadsheet_id, token_file_name)
+        return tests_handler
