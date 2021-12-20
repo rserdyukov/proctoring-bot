@@ -148,7 +148,7 @@ class MainHandlersChain(HandlersChain):
         MainHandlersChain._logger.debug("Start main private conversation state")
         text, keyboard_markup, _ = await MainHandlersChain._start_routine(message, state)
         text = text.replace(f"(@{message.from_user.username})", "")
-        await message.reply(text, reply_markup=keyboard_markup)
+        await message.answer(text, reply_markup=keyboard_markup)
 
     @staticmethod
     @Registrar.message_handler(commands=["cancel"], state="*")
@@ -171,7 +171,7 @@ class MainHandlersChain(HandlersChain):
         MainHandlersChain._logger.debug(f"Cancel {current_state} conversation state")
 
         await state.finish()
-        await message.reply("Действие отменено")
+        await message.answer("Действие отменено")
 
     @staticmethod
     @Registrar.message_handler(commands=["info"])
@@ -186,7 +186,7 @@ class MainHandlersChain(HandlersChain):
         :type state: :obj:`FSMContext`
         """
         data = await state.get_data()
-        await message.reply(MainHandlersChain.get_info(data))
+        await message.answer(MainHandlersChain.get_info(data))
 
     @staticmethod
     @Registrar.callback_query_handler(text="info")
@@ -201,7 +201,7 @@ class MainHandlersChain(HandlersChain):
         :type state: :obj:`FSMContext`
         """
         data = await state.get_data()
-        await query.message.reply(MainHandlersChain.get_info(data))
+        await query.message.answer(MainHandlersChain.get_info(data))
 
     @staticmethod
     def get_info(user_data) -> str:
