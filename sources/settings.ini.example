@@ -6,10 +6,10 @@ timeout=0
 
 [Spreadsheet]
 auth_id=id
-auth_token=auth_token.json
+auth_token=sources/tokens/auth_token.json
 
 works_id=id
-works_token=works_token.json
+works_token=sources/tokens/works_token.json
 
 tests_id=id
-tests_token=tests_token.json
+tests_token=sources/tokens/tests_token.json

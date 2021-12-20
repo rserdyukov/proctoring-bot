@@ -1,11 +1,18 @@
+"""
+Row spreadsheet handler implementation module.
+"""
+from typing import List, Dict
 import httplib2
 import apiclient
 from oauth2client.service_account import ServiceAccountCredentials
-from typing import List, Dict
 
 
 class SpreadsheetHandler:
-    def __init__(self, spreadsheet_id, file_name: str, sheet_attributes: Dict[str, List[str]]):
+    """
+    Row spreadsheet handler class  implementation.
+    """
+
+    def __init__(self, spreadsheet_id: str, file_name: str, sheet_attributes: Dict[str, List[str]]):
         self._spreadsheet_id = spreadsheet_id
         self._credentials_file = file_name
         self._sheet_attributes = sheet_attributes
@@ -17,6 +24,11 @@ class SpreadsheetHandler:
         )
         self._http_auth = self._credentials.authorize(httplib2.Http())
         self._service = apiclient.discovery.build("sheets", "v4", http=self._http_auth)
+
+        if len(spreadsheet_id) != 0:
+            print(
+                f"Open existing spreadsheet at https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0"
+            )
 
     def _pop_sheet_title(self) -> str and list:
         keys = self._sheet_attributes.keys()
@@ -59,7 +71,19 @@ class SpreadsheetHandler:
             },
         ).execute()
 
-    def create_spreadsheet(self, spreadsheet_title: str, row_count: int, column_count: int) -> None:
+    def create_spreadsheet(self, spreadsheet_title: str, row_count: int, column_count: int):
+        """
+        Creates spreadsheet with title, row and column amount.
+
+        :param spreadsheet_title: Spreadsheet title
+        :type spreadsheet_title: :obj:`str`
+
+        :param row_count: Spreadsheet row amount
+        :type row_count: :obj:`int`
+
+        :param column_count: Spreadsheet column amount
+        :type column_count: :obj:`int`
+        """
         sheet_title, attributes = self._pop_sheet_title()
 
         spreadsheet = (
@@ -84,7 +108,7 @@ class SpreadsheetHandler:
 
         self._spreadsheet_id = spreadsheet["spreadsheetId"]
 
-        print(f"Open spreadsheet in https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0")
+        print(f"Created new spreadsheet at https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0")
 
         self._service.spreadsheets().values().batchUpdate(
             spreadsheetId=self._spreadsheet_id,
@@ -136,7 +160,18 @@ class SpreadsheetHandler:
             },
         ).execute()
 
-    def add_row(self, spreadsheet_title: str, row: List[str]) -> None:
+    def add_row(self, spreadsheet_title: str, row: List[str]):
+        """
+        Adds one single row with fields in spreadsheet.
+
+        Note: If such row exists then it will change.
+
+        :param spreadsheet_title: Spreadsheet title
+        :type spreadsheet_title: :obj:`str`
+
+        :param row: Spreadsheet appendable row
+        :type row: :obj:`List[str]`
+        """
         first_row_element = row[0]
         results = self._get_first_column_sheet_range(spreadsheet_title)
         sheet_values = results["valueRanges"][0]["values"]
@@ -153,6 +188,20 @@ class SpreadsheetHandler:
         self._update_spreadsheet_row(spreadsheet_title, row_number, row)
 
     def remove_row(self, spreadsheet_title: str, first_row_element: str) -> bool:
+        """
+        Removes one single row with fields from spreadsheet.
+
+        Note: If such row doesn't exist then it won't be removed.
+
+        :param spreadsheet_title: Spreadsheet title
+        :type spreadsheet_title: :obj:`str`
+
+        :param first_row_element: First field in removable row
+        :type first_row_element: :obj:`str`
+
+        :return: Returns True on success.
+        :rtype: :obj:`bool`
+        """
         results = self._get_first_column_sheet_range(spreadsheet_title)
         sheet_values = results["valueRanges"][0]["values"]
 
@@ -169,11 +218,36 @@ class SpreadsheetHandler:
         return True
 
     def get_first_column_sheet_range(self, spreadsheet_title: str) -> list:
+        """
+        Gets first column in spreadsheet.
+
+        Note: If such first column doesn't exist then None will be returned.
+
+        :param spreadsheet_title: Spreadsheet title
+        :type spreadsheet_title: :obj:`str`
+
+        :return: Returns first column with fields in spreadsheet.
+        :rtype: :obj:`list[str]`
+        """
         results = self._get_first_column_sheet_range(spreadsheet_title)
         sheet_values = results["valueRanges"][0]["values"]
         return list(filter(lambda v: v != [], sheet_values[1:]))
 
     def get_row_by_first_element(self, spreadsheet_title: str, element: str) -> dict:
+        """
+        Gets row in spreadsheet by its first field.
+
+        Note: If such row doesn't exist then {} will be returned.
+
+        :param spreadsheet_title: Spreadsheet title
+        :type spreadsheet_title: :obj:`str`
+
+        :param element: First field in row
+        :type element: :obj:`str`
+
+        :return: Returns row with fields.
+        :rtype: :obj:`dict[str, str]`
+        """
         alphabet_start_index = 64
         right_corner = chr(alphabet_start_index + len(self._sheet_attributes.get(spreadsheet_title)))
         results = self._get_sheet_range(spreadsheet_title, "A2", f"{right_corner}1000")

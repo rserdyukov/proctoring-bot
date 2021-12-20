@@ -1,13 +1,20 @@
+"""
+Spreadsheet storage implementation module.
+"""
 import copy
 from typing import Dict
 
-from bot.storage.base_spreadsheet_storage import BaseSpreadsheetStorage
-from bot.storage.spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
-from bot.storage.spreadsheet.tests.tests_spreadsheet_handler import TestsSpreadsheetHandler
-from bot.storage.spreadsheet.works.works_spreadsheet_handler import WorksSpreadsheetHandler
+from .base_spreadsheet_storage import BaseSpreadsheetStorage
+from .spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
+from .spreadsheet.tests.base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
+from .spreadsheet.works.base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
 
 
 class SpreadsheetStorage(BaseSpreadsheetStorage):
+    """
+    Spreadsheet storage class implementation.
+    """
+
     def __init__(self):
         super().__init__()
         self._auth_handler = None
@@ -42,16 +49,10 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
     async def _upload_register_data(self, user_data):
         auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
-
-        username = user_data.get("user_data")
-        if user_data.get("username") is None:
-            return
-
+        username = user_data.get("username")
         auth_data = user_data.get("auth")
 
-        if auth_data is not None:
-            return
-        else:
+        if auth_data == {}:
             student = auth_handler.get_student_by_username(username)
             teacher = auth_handler.get_teacher_by_username(username)
 
@@ -79,7 +80,6 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
     async def _update_table(self, user_data):
         username = user_data.get("username")
-
         user_type = user_data.get("type")
         auth_data = user_data.get("auth")
         works_data = user_data.get("works")
@@ -89,9 +89,15 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
             if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
                 await self._register_user(username, user_type, auth_data)
         if works_data is not None:
-            pass
+            if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
+                await self._register_work(username, works_data, auth_data)
+
         if tests_data is not None:
             pass
+
+    async def _register_work(self, username, works_data, auth_data):
+        works_handler: BaseWorksSpreadsheetHandler = self._works_handler
+        works_handler.add_student_work(username, works_data, **auth_data)
 
     async def _register_user(self, username, user_type, auth_data):
         auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
@@ -113,8 +119,8 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
     def visit_auth_handler(self, auth_handler: BaseAuthSpreadsheetHandler):
         self._auth_handler = auth_handler
 
-    def visit_works_handler(self, works_handler: WorksSpreadsheetHandler):
+    def visit_works_handler(self, works_handler: BaseWorksSpreadsheetHandler):
         self._works_handler = works_handler
 
-    def visit_tests_handler(self, tests_handler: TestsSpreadsheetHandler):
+    def visit_tests_handler(self, tests_handler: BaseTestsSpreadsheetHandler):
         self._tests_handler = tests_handler

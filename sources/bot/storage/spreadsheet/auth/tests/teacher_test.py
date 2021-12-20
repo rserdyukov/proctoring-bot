@@ -1,6 +1,6 @@
 import unittest
 
-from bot.storage.spreadsheet.auth.tests.spreadsheet_test import TestSpreadsheet
+from ..tests.spreadsheet_test import TestSpreadsheet
 
 
 class TestSpreadsheetTeachers(TestSpreadsheet):
@@ -8,18 +8,18 @@ class TestSpreadsheetTeachers(TestSpreadsheet):
         username = "MksmOrlov"
         name = "Орлов Максим Константинович"
 
-        self.handler.add_teacher(username, name)
+        self.handler.add_teacher(username=username, name=name)
         teacher = self.handler.get_teacher_by_username(username)
 
         self.assertEqual(teacher.get("username"), username)
         self.assertEqual(teacher.get("ФИО"), name)
 
     def test_add_five_teachers(self):
-        self.handler.add_teacher("teacher1", "name1")
-        self.handler.add_teacher("teacher2", "name2")
-        self.handler.add_teacher("teacher3", "name3")
-        self.handler.add_teacher("teacher4", "name4")
-        self.handler.add_teacher("teacher5", "name5")
+        self.handler.add_teacher(username="teacher1", name="name1")
+        self.handler.add_teacher(username="teacher2", name="name2")
+        self.handler.add_teacher(username="teacher3", name="name3")
+        self.handler.add_teacher(username="teacher4", name="name4")
+        self.handler.add_teacher(username="teacher5", name="name5")
 
         teacher_usernames = self.handler.get_teacher_usernames()
         teacher3 = self.handler.get_teacher_by_username("teacher3")
@@ -32,9 +32,9 @@ class TestSpreadsheetTeachers(TestSpreadsheet):
         self.assertEqual(teacher5, {"username": "teacher5", "ФИО": "name5"})
 
     def test_remove_teacher(self):
-        self.handler.add_teacher("teacher1", "name1")
-        self.handler.add_teacher("teacher2", "name2")
-        self.handler.add_teacher("teacher3", "name3")
+        self.handler.add_teacher(username="teacher1", name="name1")
+        self.handler.add_teacher(username="teacher2", name="name2")
+        self.handler.add_teacher(username="teacher3", name="name3")
 
         teacher2 = self.handler.get_teacher_by_username("teacher2")
         teacher_usernames = self.handler.get_teacher_usernames()

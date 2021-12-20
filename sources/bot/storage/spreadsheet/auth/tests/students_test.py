@@ -1,6 +1,6 @@
 import unittest
 
-from bot.storage.spreadsheet.auth.tests.spreadsheet_test import TestSpreadsheet
+from ..tests.spreadsheet_test import TestSpreadsheet
 
 
 class TestSpreadsheetStudents(TestSpreadsheet):
@@ -10,7 +10,7 @@ class TestSpreadsheetStudents(TestSpreadsheet):
         group = "921701"
         subgroup = "1"
 
-        self.handler.add_student(username, name, group, subgroup)
+        self.handler.add_student(username=username, name=name, group=group, subgroup=subgroup)
         student = self.handler.get_student_by_username(username)
 
         self.assertEqual(student.get("username"), username)
@@ -19,11 +19,11 @@ class TestSpreadsheetStudents(TestSpreadsheet):
         self.assertEqual(student.get("Подгруппа"), subgroup)
 
     def test_add_five_students(self):
-        self.handler.add_student("student1", "name1", "group1", "subgroup1")
-        self.handler.add_student("student2", "name2", "group2", "subgroup2")
-        self.handler.add_student("student3", "name3", "group3", "subgroup3")
-        self.handler.add_student("student4", "name4", "group4", "subgroup4")
-        self.handler.add_student("student5", "name5", "group5", "subgroup5")
+        self.handler.add_student(username="student1", name="name1", group="group1", subgroup="subgroup1")
+        self.handler.add_student(username="student2", name="name2", group="group2", subgroup="subgroup2")
+        self.handler.add_student(username="student3", name="name3", group="group3", subgroup="subgroup3")
+        self.handler.add_student(username="student4", name="name4", group="group4", subgroup="subgroup4")
+        self.handler.add_student(username="student5", name="name5", group="group5", subgroup="subgroup5")
 
         student_usernames = self.handler.get_student_usernames()
         student3 = self.handler.get_student_by_username("student3")
@@ -39,9 +39,9 @@ class TestSpreadsheetStudents(TestSpreadsheet):
         )
 
     def test_remove_student(self):
-        self.handler.add_student("student1", "name1", "group1", "subgroup1")
-        self.handler.add_student("student2", "name2", "group2", "subgroup2")
-        self.handler.add_student("student3", "name3", "group3", "subgroup3")
+        self.handler.add_student(username="student1", name="name1", group="group1", subgroup="subgroup1")
+        self.handler.add_student(username="student2", name="name2", group="group2", subgroup="subgroup2")
+        self.handler.add_student(username="student3", name="name3", group="group3", subgroup="subgroup3")
 
         student2 = self.handler.get_student_by_username("student2")
         student_usernames = self.handler.get_student_usernames()

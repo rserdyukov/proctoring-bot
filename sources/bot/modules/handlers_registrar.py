@@ -1,11 +1,18 @@
+"""
+Bot chains handlers registrar implementation module.
+"""
 import copy
 from types import FunctionType
 
-from bot.loggers import LogInstaller
-from bot.state_machine import StateMachine
+from ..loggers import LogInstaller
+from ..state_machine import StateMachine
 
 
 class HandlersRegistrar:
+    """
+    Bot chains handlers registrar class implementation.
+    """
+
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.INFO)
     _handler_contexts = []
     _handler_types = {}
@@ -25,6 +32,28 @@ class HandlersRegistrar:
 
     @staticmethod
     def message_handler(*custom_filters, commands=None, regexp=None, content_types=None, state=None, **kwargs):
+        """
+        Decorates message handler to register.
+
+        :param custom_filters: Handlers message filters
+        :type custom_filters: :obj:`list[Any]`
+
+        :param commands: Commands to call handler
+        :type commands: :obj:`list[Any]`
+
+        :param regexp: Message regexp filter
+        :type regexp: :obj:`str`
+
+        :param content_types: Message content types
+        :type content_types: :obj:`list[Any]`
+
+        :param state: Current machine state
+        :type state: :obj:`State`
+
+        :param kwargs: Additional message filters
+        :type kwargs: :obj:`dict[Any]`
+        """
+
         def decorator(callback):
             callback_context = {
                 "handler": "message_handler",
@@ -45,6 +74,19 @@ class HandlersRegistrar:
 
     @staticmethod
     def callback_query_handler(*custom_filters, state=None, **kwargs):
+        """
+        Decorates callback query handler to register.
+
+        :param custom_filters: Handlers message filters
+        :type custom_filters: :obj:`list[Any]`
+
+        :param state: Current machine state
+        :type state: :obj:`State`
+
+        :param kwargs: Additional message filters
+        :type kwargs: :obj:`dict[Any]`
+        """
+
         def decorator(callback):
             callback_context = {
                 "handler": "callback_query_handler",
@@ -62,6 +104,19 @@ class HandlersRegistrar:
 
     @staticmethod
     def errors_handler(*custom_filters, exception=None, **kwargs):
+        """
+        Decorates callback query handler to register.
+
+        :param custom_filters: Handlers message filters
+        :type custom_filters: :obj:`list[Any]`
+
+        :param exception: Checking exception
+        :type exception: :obj:`Exception`
+
+        :param kwargs: Additional message filters
+        :type kwargs: :obj:`dict[Any]`
+        """
+
         def decorator(callback):
             callback_context = {
                 "handler": "errors_handler",
@@ -107,5 +162,11 @@ class HandlersRegistrar:
             register_message_handler(func, *custom_filters, **handler_params)
 
     def register(self, handlers_chains: list):
+        """
+        Registers handlers chains with their handlers.
+
+        :param handlers_chains: Handlers chains to register
+        :type handlers_chains: :obj:`list[Any]`
+        """
         self._register_chains(handlers_chains)
         self._register_handlers()
