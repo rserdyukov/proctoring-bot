@@ -47,5 +47,5 @@ class BotConfigurator(BaseBotConfigurator):
         bot_token = self._config.get_bot_option("token")
 
         bot = ProctoringBot(bot_token, self._create_handlers_factory(), self._create_storage())
-        bot.timeout = float(self._config.get_chat_option("timeout"))
+        bot.register_timeout = float(self._config.get_chat_option("timeout"))
         return bot

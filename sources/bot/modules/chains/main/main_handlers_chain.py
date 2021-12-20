@@ -91,8 +91,9 @@ class MainHandlersChain(HandlersChain):
     @staticmethod
     async def _wait_registration(message: types.Message, state: FSMContext, not_registered):
         if not_registered:
-            MainHandlersChain._logger.debug(f"Start register timer at {Registrar.bot.timeout} minutes")
-            await asyncio.sleep(Registrar.bot.timeout * 60)
+            MainHandlersChain._logger.debug(f"Start register timer at {Registrar.bot.register_timeout} minutes")
+            timeout = Registrar.bot.register_timeout * 60
+            await asyncio.sleep(timeout)
 
         username = message.from_user.username
         chat_id = message.chat.id
