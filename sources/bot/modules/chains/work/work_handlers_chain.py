@@ -22,8 +22,17 @@ class WorkHandlersChain(HandlersChain):
     @Registrar.message_handler(commands=["lab"], state="*")
     async def lab_start_handler(message: types.Message):
         WorkHandlersChain._logger.debug(f"Start lab conversation state")
+
         await message.answer("Отправьте ссылку на лабораторную работу.")
-        await Work.waiting_for_link.set()
+        await WorkStates.waiting_for_link.set()
+
+    @staticmethod
+    @Registrar.callback_query_handler(text="lab")
+    async def lab_start_handler(query: types.CallbackQuery):
+        WorkHandlersChain._logger.debug(f"Start lab conversation state")
+
+        await Registrar.bot.send_message(query.from_user.id, "Отправьте ссылку на лабораторную работу.")
+        await WorkStates.waiting_for_link.set()
 
     @staticmethod
     @Registrar.message_handler(state=WorkStates.waiting_for_link)
