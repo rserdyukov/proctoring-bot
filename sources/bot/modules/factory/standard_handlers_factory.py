@@ -5,7 +5,7 @@ from ...loggers import LogInstaller
 from ...modules.chains.auth.auth_handlers_chain import AuthHandlersChain
 from ...modules.handlers_registrar import HandlersRegistrar
 from ...modules.chains.main.main_handlers_chain import MainHandlersChain
-from ...modules.chains.work.work_handlers_chain import WorksHandlersChain
+from ...modules.chains.work.work_handlers_chain import WorkHandlersChain
 from ...state_machine import StateMachine
 from ...modules.factory.handlers_factory import HandlersFactory
 
@@ -23,7 +23,7 @@ class StandardHandlersFactory(HandlersFactory):
                 [
                     AuthHandlersChain,
                     MainHandlersChain,
-                    WorksHandlersChain,
+                    WorkHandlersChain,
                 ]
             )
         except TypeError as error:
