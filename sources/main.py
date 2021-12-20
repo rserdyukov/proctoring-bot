@@ -1,5 +1,5 @@
 """
-    Main module to create, configure and launch proctoring bot.
+Main module to create, configure and launch proctoring bot.
 """
 import os
 from .tools.configurator.bot_configurator import BotConfigurator
