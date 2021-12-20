@@ -19,6 +19,7 @@ class ProctoringBot(Bot):
         super().__init__(token)
         self._machine = StateMachine(self, storage)
         self._factory = factory
+        self.timeout = 0
 
     def run(self):
         self._logger.info("Proctoring bot run...")
