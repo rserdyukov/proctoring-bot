@@ -133,3 +133,5 @@ class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
 
         return sheet_names
 
+    def accept_storage(self, storage):
+        storage.visit_works_handler(self)
