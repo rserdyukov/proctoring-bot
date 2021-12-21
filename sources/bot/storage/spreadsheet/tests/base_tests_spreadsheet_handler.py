@@ -1,5 +1,6 @@
 from abc import abstractmethod, ABCMeta
 
+from ....exceptions import SpreadsheetHandlerException
 from ..base_spreadsheet_handler import BaseSpreadsheetHandler
 
 
