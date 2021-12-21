@@ -24,18 +24,21 @@ class BotConfigurator(BaseBotConfigurator):
         storage = storage_factory.create_storage()
 
         storage.visit_auth_handler(self._config_auth_handler(storage_factory))
-        self._config_works_handler(storage_factory)
-        self._config_tests_handler(storage_factory)
+        storage.visit_works_handler(self._config_works_handler(storage_factory))
 
         return storage
 
     def _config_auth_handler(self, storage_factory: SpreadsheetStorageFactory):
         spreadsheet_id = self._config.get_spreadsheet_option("auth_id")
         token = self._config.get_spreadsheet_option("auth_token")
+
         return storage_factory.init_auth_handler(spreadsheet_id, token)
 
     def _config_works_handler(self, storage_factory: SpreadsheetStorageFactory):
-        pass
+        spreadsheet_id = self._config.get_spreadsheet_option("works_id")
+        token = self._config.get_spreadsheet_option("works_token")
+
+        return storage_factory.init_works_handler(spreadsheet_id, token)
 
     def _config_tests_handler(self, storage_factory: SpreadsheetStorageFactory):
         pass
@@ -46,4 +49,6 @@ class BotConfigurator(BaseBotConfigurator):
     def create_bot(self) -> Bot:
         bot_token = self._config.get_bot_option("token")
 
-        return ProctoringBot(bot_token, self._create_handlers_factory(), self._create_storage())
+        bot = ProctoringBot(bot_token, self._create_handlers_factory(), self._create_storage())
+        bot.register_timeout = float(self._config.get_chat_option("timeout"))
+        return bot

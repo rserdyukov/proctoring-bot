@@ -1,6 +1,8 @@
 """
 Bot main handlers chain implementation module.
 """
+import asyncio
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup
@@ -53,6 +55,9 @@ class MainKeyboardsBuilder:
                 {
                     "Посмотреть информацию": "info",
                 },
+                {
+                    "Отправить лабораторную работу": "lab",
+                },
             ]
         )
 
@@ -66,22 +71,54 @@ class MainHandlersChain(HandlersChain):
 
     @staticmethod
     async def _start_routine(message: types.Message, state: FSMContext):
-        await state.update_data(username=message.from_user.username)
+        username = message.from_user.username
+        greeting = f"Привет, {message.from_user.first_name} (@{username}).\n"
+        bot = await Registrar.bot.get_me()
+
+        await state.update_data(username=username)
         data = await state.get_data()
         data_size = len(data.get("auth").keys())
-        greeting = f"Привет, {message.from_user.first_name}\n"
+        not_registered = data_size != 3 and data_size != 1
 
-        if data_size != 3 and data_size != 1:
-            text = f"{greeting}Вы не зарегестрированы\n"
+        if not_registered:
+            MainHandlersChain._logger.debug(f"User @{username} is not registered")
+            text = f"{greeting}Вы не зарегистрированы.\nПройти регистрацию: @{bot.username}."
             keyboard_markup = MainKeyboardsBuilder.get_private_start_keyboard()
         else:
-            text = f"{greeting}Вы уже зарегестрированы"
+            MainHandlersChain._logger.debug(f"User @{username} is registered")
+            text = f"{greeting}Вы уже зарегистрированы.\nПодробности: @{bot.username}."
             keyboard_markup = MainKeyboardsBuilder.get_info_keyboard()
 
-        return text, keyboard_markup
+        return text, keyboard_markup, not_registered
 
     @staticmethod
-    @Registrar.message_handler(commands=["start"], chat_type=ChatType.GROUP)
+    async def _wait_registration(message: types.Message, state: FSMContext, not_registered):
+        if not_registered:
+            MainHandlersChain._logger.debug(f"Start register timer at {Registrar.bot.register_timeout} minutes")
+            timeout = Registrar.bot.register_timeout * 60
+            await asyncio.sleep(timeout)
+
+        username = message.from_user.username
+        chat_id = message.chat.id
+        data = await state.get_data()
+
+        if data.get("auth") == {}:
+            text = f"Регистрация не была пройдена, @{username} удалён из чата."
+            await Registrar.bot.send_message(chat_id=chat_id, text=text)
+
+            wait_before_kick_timeout = 5
+            await asyncio.sleep(wait_before_kick_timeout)
+            await message.chat.kick(user_id=message.from_user.id)
+
+            MainHandlersChain._logger.debug(f"User @{username} kicked")
+        elif not_registered:
+            text = f"Регистрация @{username} пройдена успешно."
+            await Registrar.bot.send_message(chat_id=chat_id, text=text)
+
+            MainHandlersChain._logger.debug(f"User @{username} have been registered")
+
+    @staticmethod
+    @Registrar.message_handler(content_types=types.ContentTypes.NEW_CHAT_MEMBERS)
     async def start_handler(message: types.Message, state: FSMContext):
         """
         Asks user ro start registration process or speaks about that he is registered.
@@ -93,8 +130,10 @@ class MainHandlersChain(HandlersChain):
         :type state: :obj:`FSMContext`
         """
         MainHandlersChain._logger.debug("Start main group conversation state")
-        text, _ = await MainHandlersChain._start_routine(message, state)
-        await message.reply(text)
+        text, _, not_registered = await MainHandlersChain._start_routine(message, state)
+
+        await Registrar.bot.send_message(chat_id=message.chat.id, text=text)
+        await MainHandlersChain._wait_registration(message, state, not_registered)
 
     @staticmethod
     @Registrar.message_handler(commands=["start"], chat_type=ChatType.PRIVATE)
@@ -110,8 +149,9 @@ class MainHandlersChain(HandlersChain):
         :type state: :obj:`FSMContext`
         """
         MainHandlersChain._logger.debug("Start main private conversation state")
-        text, keyboard_markup = await MainHandlersChain._start_routine(message, state)
-        await message.reply(text, reply_markup=keyboard_markup)
+        text, keyboard_markup, _ = await MainHandlersChain._start_routine(message, state)
+        text = text.replace(f"(@{message.from_user.username})", "")
+        await message.answer(text, reply_markup=keyboard_markup)
 
     @staticmethod
     @Registrar.message_handler(commands=["cancel"], state="*")
@@ -134,7 +174,7 @@ class MainHandlersChain(HandlersChain):
         MainHandlersChain._logger.debug(f"Cancel {current_state} conversation state")
 
         await state.finish()
-        await message.reply("Действие отменено")
+        await message.answer("Действие отменено")
 
     @staticmethod
     @Registrar.message_handler(commands=["info"])
@@ -149,7 +189,7 @@ class MainHandlersChain(HandlersChain):
         :type state: :obj:`FSMContext`
         """
         data = await state.get_data()
-        await message.reply(MainHandlersChain.get_info(data))
+        await message.answer(MainHandlersChain.get_info(data))
 
     @staticmethod
     @Registrar.callback_query_handler(text="info")
@@ -164,7 +204,7 @@ class MainHandlersChain(HandlersChain):
         :type state: :obj:`FSMContext`
         """
         data = await state.get_data()
-        await query.message.reply(MainHandlersChain.get_info(data))
+        await query.message.answer(MainHandlersChain.get_info(data))
 
     @staticmethod
     def get_info(user_data) -> str:

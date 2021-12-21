@@ -1,9 +1,12 @@
-from bot.loggers import LogInstaller
-from bot.modules.chains.auth.auth_handlers_chain import AuthHandlersChain
-from bot.modules.handlers_registrar import HandlersRegistrar
-from bot.modules.chains.main.main_handlers_chain import MainHandlersChain
-from bot.state_machine import StateMachine
-from bot.modules.factory.handlers_factory import HandlersFactory
+"""
+Standard bot handlers factory implementation module.
+"""
+from ...loggers import LogInstaller
+from ...modules.chains.auth.auth_handlers_chain import AuthHandlersChain
+from ...modules.handlers_registrar import HandlersRegistrar
+from ...modules.chains.main.main_handlers_chain import MainHandlersChain
+from ...state_machine import StateMachine
+from ...modules.factory.handlers_factory import HandlersFactory
 
 
 class StandardHandlersFactory(HandlersFactory):
@@ -19,7 +22,8 @@ class StandardHandlersFactory(HandlersFactory):
                 [
                     AuthHandlersChain,
                     MainHandlersChain,
-                    MenuHandlersChain
+                    MenuHandlersChain,
+                    WorkHandlersChain,
                 ]
             )
         except TypeError as error:
