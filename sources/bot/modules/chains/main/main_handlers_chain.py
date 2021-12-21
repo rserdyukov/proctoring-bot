@@ -13,6 +13,7 @@ from ....loggers import LogInstaller
 from ...handlers_chain import HandlersChain
 from ...handlers_registrar import HandlersRegistrar as Registrar
 from ...keyboard.keyboard import KeyboardBuilder
+from ..auth.auth_expectation_chain import AuthExpectationHandlersChain
 
 
 class MainStates(StatesGroup):
@@ -92,32 +93,6 @@ class MainHandlersChain(HandlersChain):
         return text, keyboard_markup, not_registered
 
     @staticmethod
-    async def _wait_registration(message: types.Message, state: FSMContext, not_registered):
-        if not_registered:
-            MainHandlersChain._logger.debug(f"Start register timer at {Registrar.bot.register_timeout} minutes")
-            timeout = Registrar.bot.register_timeout * 60
-            await asyncio.sleep(timeout)
-
-        username = message.from_user.username
-        chat_id = message.chat.id
-        data = await state.get_data()
-
-        if data.get("auth") == {}:
-            text = f"Регистрация не была пройдена, @{username} удалён из чата."
-            await Registrar.bot.send_message(chat_id=chat_id, text=text)
-
-            wait_before_kick_timeout = 5
-            await asyncio.sleep(wait_before_kick_timeout)
-            await message.chat.kick(user_id=message.from_user.id)
-
-            MainHandlersChain._logger.debug(f"User @{username} kicked")
-        elif not_registered:
-            text = f"Регистрация @{username} пройдена успешно."
-            await Registrar.bot.send_message(chat_id=chat_id, text=text)
-
-            MainHandlersChain._logger.debug(f"User @{username} have been registered")
-
-    @staticmethod
     @Registrar.message_handler(content_types=types.ContentTypes.NEW_CHAT_MEMBERS)
     async def start_handler(message: types.Message, state: FSMContext):
         """
@@ -133,7 +108,7 @@ class MainHandlersChain(HandlersChain):
         text, _, not_registered = await MainHandlersChain._start_routine(message, state)
 
         await Registrar.bot.send_message(chat_id=message.chat.id, text=text)
-        await MainHandlersChain._wait_registration(message, state, not_registered)
+        await AuthExpectationHandlersChain().wait_registration(message, state, not_registered)
 
     @staticmethod
     @Registrar.message_handler(commands=["start"], chat_type=ChatType.PRIVATE)
