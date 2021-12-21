@@ -31,7 +31,7 @@ class MenuKeyboardBuilder:
             [
                 {
                     "Запустить опрос": "start_survey",
-                    "Проверитть вопросы": "check_survey"
+                    "Проверить вопросы": "check_survey"
                 }
             ]
         )

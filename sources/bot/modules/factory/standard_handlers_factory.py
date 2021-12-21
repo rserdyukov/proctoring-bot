@@ -22,8 +22,7 @@ class StandardHandlersFactory(HandlersFactory):
                 [
                     AuthHandlersChain,
                     MainHandlersChain,
-                    MenuHandlersChain,
-                    WorkHandlersChain,
+                    MenuHandlersChain
                 ]
             )
         except TypeError as error:
