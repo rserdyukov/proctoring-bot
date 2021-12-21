@@ -33,7 +33,7 @@ class AuthExpectationHandlersChain(HandlersChain):
             await asyncio.sleep(1)
             timeout -= 1
 
-    async def _send_user_not_registered(self, message: types.Message):
+    async def _kick_user(self, message: types.Message):
         username = message.from_user.username
         chat_id = message.chat.id
 
@@ -53,4 +53,4 @@ class AuthExpectationHandlersChain(HandlersChain):
         data = await state.get_data()
 
         if data.get("auth") == {}:
-            self._send_user_not_registered(message)
+            self._kick_user(message)
