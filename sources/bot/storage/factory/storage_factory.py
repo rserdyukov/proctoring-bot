@@ -66,9 +66,6 @@ class StorageFactory:
         """
         Creates concrete student tests managing spreadsheet handler.
 
-        :param spreadsheet_id: Spreadsheet unique id
-        :type spreadsheet_id: :obj:`str`
-
         :param token_file_name: Spreadsheet token file name
         :type token_file_name: :obj:`str`
 
