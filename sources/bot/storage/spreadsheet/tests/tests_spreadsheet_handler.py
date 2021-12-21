@@ -9,7 +9,7 @@ import httplib2
 from googleapiclient.errors import HttpError
 from oauth2client.service_account import ServiceAccountCredentials
 
-from sources.bot.storage.spreadsheet.tests.base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
+from .base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
 
 
 class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
