@@ -1,6 +1,8 @@
 """
 Standard bot handlers factory implementation module.
 """
+from ..chains.survey.student_handlers_chain import StudentHandlersChain
+from ..chains.survey.teacher_handlers_chain import SurveyTeacherHandlersChain
 from ...loggers import LogInstaller
 from ...modules.chains.auth.auth_handlers_chain import AuthHandlersChain
 from ...modules.handlers_registrar import HandlersRegistrar
@@ -22,7 +24,8 @@ class StandardHandlersFactory(HandlersFactory):
                 [
                     AuthHandlersChain,
                     MainHandlersChain,
-                    MenuHandlersChain
+                    StudentHandlersChain,
+                    SurveyTeacherHandlersChain,
                 ]
             )
         except TypeError as error:
