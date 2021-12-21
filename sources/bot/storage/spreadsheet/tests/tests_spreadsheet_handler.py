@@ -1,4 +1,3 @@
-from .base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
 import json
 import os
 import sys
