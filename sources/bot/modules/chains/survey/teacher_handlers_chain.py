@@ -122,16 +122,3 @@ class SurveyTeacherHandlersChain(HandlersChain):
     async def cancel_survey_handler(query: types.CallbackQuery, state: FSMContext):
         await query.message.edit_text("Отправка опроса отменена")
         await state.reset_state()
-
-    @staticmethod
-    def get_survey() -> List[dict]:
-        return [
-            {
-                "Вопрос1": "содержание вопроса",
-                "ответ1": "содержание ответа",
-                "ответ2": "содержание ответа",
-                "ответ3": "содержание ответа",
-                "ответ4": "содержание ответа",
-                "правильный": "ответ1"
-            }
-        ]
