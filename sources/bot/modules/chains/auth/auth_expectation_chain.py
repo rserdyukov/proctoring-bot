@@ -53,4 +53,4 @@ class AuthExpectationHandlersChain(HandlersChain):
         data = await state.get_data()
 
         if data.get("auth") == {}:
-            self._kick_user(message)
+            await self._kick_user(message)
