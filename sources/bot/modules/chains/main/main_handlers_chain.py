@@ -108,7 +108,7 @@ class MainHandlersChain(HandlersChain):
         text, _, not_registered = await MainHandlersChain._start_routine(message, state)
 
         await Registrar.bot.send_message(chat_id=message.chat.id, text=text)
-        await AuthExpectationHandlersChain.wait_registration(message, state, not_registered)
+        await AuthExpectationHandlersChain().wait_registration(message, state, not_registered)
 
     @staticmethod
     @Registrar.message_handler(commands=["start"], chat_type=ChatType.PRIVATE)

@@ -2,9 +2,6 @@ import asyncio
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import StatesGroup
-from aiogram.types import ChatType
-from aiogram.types import InlineKeyboardMarkup
 
 from ....loggers import LogInstaller
 from ...handlers_chain import HandlersChain
@@ -15,37 +12,28 @@ from ...keyboard.keyboard import KeyboardBuilder
 class AuthExpectationHandlersChain(HandlersChain):
     _logger = LogInstaller.get_default_logger(__name__, LogInstaller.DEBUG)
 
-    @staticmethod
-    async def _check_user_registration_completing(message: types.Message, state: FSMContext) -> bool:
-        data = await state.get_data()
+    async def _send_user_about_registration_completing(self, message: types.Message):
         username = message.from_user.username
 
-        if data.get("auth") != {}:
-            text = f"Регистрация @{username} пройдена успешно."
-            await Registrar.bot.send_message(chat_id=message.chat.id, text=text)
+        text = f"Регистрация @{username} пройдена успешно."
+        await Registrar.bot.send_message(chat_id=message.chat.id, text=text)
 
-            AuthExpectationHandlersChain._logger.debug(f"User @{username} have been registered")
-            return True
+        AuthExpectationHandlersChain._logger.debug(f"User @{username} have been registered")
 
-        return False
-
-
-    @staticmethod
-    async def _ask_for_user_registration(message: types.Message, state: FSMContext):
+    async def _ask_for_user_registration(self, message: types.Message, state: FSMContext):
         AuthExpectationHandlersChain._logger.debug(f"Start register timer at {Registrar.bot.register_timeout} minutes")
         timeout = Registrar.bot.register_timeout * 60
 
         while timeout > 0:
-            is_registered = await AuthExpectationHandlersChain._check_user_registration_completing(message, state)
-            if is_registered:
+            data = await state.get_data()
+            if data.get("auth") != {}:
+                await self._send_user_about_registration_completing(message)
                 break
 
             await asyncio.sleep(1)
             timeout -= 1
 
-
-    @staticmethod
-    async def _send_user_not_registered(message: types.Message):
+    async def _send_user_not_registered(self, message: types.Message):
         username = message.from_user.username
         chat_id = message.chat.id
 
@@ -58,13 +46,11 @@ class AuthExpectationHandlersChain(HandlersChain):
 
         AuthExpectationHandlersChain._logger.debug(f"User @{username} kicked")
 
-
-    @staticmethod
-    async def wait_registration(message: types.Message, state: FSMContext, not_registered):
+    async def wait_registration(self, message: types.Message, state: FSMContext, not_registered):
         if not_registered:
-            await AuthExpectationHandlersChain._ask_for_user_registration(message, state)
+            await self._ask_for_user_registration(message, state)
 
         data = await state.get_data()
 
         if data.get("auth") == {}:
-            AuthExpectationHandlersChain._send_user_not_registered(message)
+            self._send_user_not_registered(message)
