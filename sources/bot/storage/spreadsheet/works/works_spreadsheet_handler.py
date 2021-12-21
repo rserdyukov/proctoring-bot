@@ -1,4 +1,4 @@
-from bot.storage.spreadsheet.works.base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
+from .base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
 
 
 class WorksSpreadsheetHandler(BaseWorksSpreadsheetHandler):
