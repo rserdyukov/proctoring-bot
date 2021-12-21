@@ -27,7 +27,7 @@ class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
                                                      range=test_name,
                                                      valueInputOption="USER_ENTERED",
                                                      insertDataOption="INSERT_ROWS",
-                                                     body={"values": row}).execute()
+                                                     body={"values": [row]}).execute()
 
     def _create_page(self, title: str, spreadsheet_id: str):
         data = {'requests': [
