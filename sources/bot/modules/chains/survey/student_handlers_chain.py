@@ -1,16 +1,13 @@
-import json
-from typing import List
-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
-from sources.bot.loggers import LogInstaller
-from sources.bot.modules.chains.survey.teacher_handlers_chain import SurveyTeacherKeyboardBuilder
-from sources.bot.modules.handlers_chain import HandlersChain
-from sources.bot.modules.handlers_registrar import HandlersRegistrar as Registrar
-from sources.bot.modules.keyboard.keyboard import KeyboardBuilder
-from sources.bot.storage.spreadsheet.util.test_to_json_file import JsonTestFileUtil
+from ....loggers import LogInstaller
+from ....modules.chains.survey.teacher_handlers_chain import SurveyTeacherKeyboardBuilder
+from ....modules.handlers_chain import HandlersChain
+from ....modules.handlers_registrar import HandlersRegistrar as Registrar
+from ....modules.keyboard.keyboard import KeyboardBuilder
+from ....storage.spreadsheet.util.test_to_json_file import JsonTestFileUtil
 
 
 class SurveyStudentStates(StatesGroup):
