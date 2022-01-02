@@ -9,6 +9,7 @@ from googleapiclient.errors import HttpError
 from oauth2client.service_account import ServiceAccountCredentials
 
 from .base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
+from ..util.test_to_json_file import JsonTestFileUtil
 
 
 class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
@@ -79,7 +80,7 @@ class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
             if len(el) < 1:
                 survey.remove(el)
 
-        self._save_test(test_name, survey)
+        JsonTestFileUtil.save_test(test_name, survey)
         return test_name, survey
 
     def add_result_to_worksheet(self, test_name, user_data, result_list) -> None:
