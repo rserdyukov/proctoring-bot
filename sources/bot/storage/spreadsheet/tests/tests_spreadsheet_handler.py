@@ -20,22 +20,17 @@ class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
         self._service = apiclient.discovery.build("sheets", "v4", http=self._http_auth)
 
     def _add_row(self, test_name: str, row: list[str], test_id: str):
-        self._service.spreadsheets().values().append(spreadsheetId=test_id,
-                                                     range=test_name,
-                                                     valueInputOption="USER_ENTERED",
-                                                     insertDataOption="INSERT_ROWS",
-                                                     body={"values": [row]}).execute()
+        self._service.spreadsheets().values().append(
+            spreadsheetId=test_id,
+            range=test_name,
+            valueInputOption="USER_ENTERED",
+            insertDataOption="INSERT_ROWS",
+            body={"values": [row]},
+        ).execute()
 
     def _create_page(self, title: str, spreadsheet_id: str):
-        data = {'requests': [
-            {
-                'addSheet': {
-                    'properties': {'title': title}
-                }
-            }
-        ]}
-        self._service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id,
-                                                 body=data).execute()
+        data = {"requests": [{"addSheet": {"properties": {"title": title}}}]}
+        self._service.spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id, body=data).execute()
 
     def load_test_by_link(self, url: str):
         url_details = url.split("/")
@@ -45,8 +40,14 @@ class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
 
     def _get_test(self, spreadsheet_id: str) -> tuple[str, list[dict]]:
         try:
-            spreadsheets = self._service.spreadsheets().get(spreadsheetId=spreadsheet_id,
-                                                            includeGridData=True).execute()
+            spreadsheets = (
+                self._service.spreadsheets()
+                .get(
+                    spreadsheetId=spreadsheet_id,
+                    includeGridData=True,
+                )
+                .execute()
+            )
         except HttpError:
             return "", []
         test_name = spreadsheets["properties"]["title"]
@@ -93,7 +94,7 @@ class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
         boolean_answer_list = []
 
         for answer in result_list:
-            if answer['is_correct']:
+            if answer["is_correct"]:
                 correct_answers += 1
                 boolean_answer_list.append("Верно")
             else:
@@ -114,7 +115,7 @@ class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
         except HttpError:
             return []
 
-        sheets = sheet_metadata.get('sheets', '')
+        sheets = sheet_metadata.get("sheets", "")
 
         sheet_names = []
 

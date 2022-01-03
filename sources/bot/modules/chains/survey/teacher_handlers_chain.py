@@ -70,8 +70,10 @@ class SurveyTeacherHandlersChain(HandlersChain):
         data = await state.get_data()
         if data["type"] == "teacher":
             await SurveyTeacherStates.waiting_for_link.set()
-            await message.answer("Отправьте ссылку на таблицу с тестом",
-                                 reply_markup=SurveyTeacherKeyboardBuilder.get_cancel_survey_keyboard())
+            await message.answer(
+                "Отправьте ссылку на таблицу с тестом",
+                reply_markup=SurveyTeacherKeyboardBuilder.get_cancel_survey_keyboard(),
+            )
 
     @staticmethod
     @Registrar.message_handler(state=SurveyTeacherStates.waiting_for_link)
@@ -86,17 +88,20 @@ class SurveyTeacherHandlersChain(HandlersChain):
 
             question_number = 0
             for question in test:
-                answers_kb = SurveyTeacherKeyboardBuilder.get_answers_keyboard(question, question_number,
-                                                                               tests_data["test_name"])
+                answers_kb = SurveyTeacherKeyboardBuilder.get_answers_keyboard(
+                    question, question_number, tests_data["test_name"]
+                )
                 question_number += 1
-                await message.answer(f"{question['Вопрос']}",
-                                     reply_markup=answers_kb)
-            await message.answer(f"Выведено {question_number} вопросов\n"
-                                 f"Отправить студентам?",
-                                 reply_markup=SurveyTeacherKeyboardBuilder.get_start_survey_keyboard())
+                await message.answer(f"{question['Вопрос']}", reply_markup=answers_kb)
+            await message.answer(
+                f"Выведено {question_number} вопросов\n" f"Отправить студентам?",
+                reply_markup=SurveyTeacherKeyboardBuilder.get_start_survey_keyboard(),
+            )
         else:
-            await message.answer("Неправильная ссылка, попробуйте еще раз",
-                                 reply_markup=SurveyTeacherKeyboardBuilder.get_cancel_survey_keyboard())
+            await message.answer(
+                "Неправильная ссылка, попробуйте еще раз",
+                reply_markup=SurveyTeacherKeyboardBuilder.get_cancel_survey_keyboard(),
+            )
 
     @staticmethod
     @Registrar.callback_query_handler(text="send_survey", state=SurveyTeacherStates.starting_survey)
@@ -107,11 +112,11 @@ class SurveyTeacherHandlersChain(HandlersChain):
         test_name = tests.get("test_name")
         student_count = 0
         for student in students:
-            await query.message.bot.send_message(text="Доступен новый тест.\n"
-                                                      "Чтобы приступить, нажмите кнопку ниже",
-                                                 reply_markup=SurveyTeacherKeyboardBuilder.
-                                                 get_student_start_keyboard(test_name),
-                                                 chat_id=student)
+            await query.message.bot.send_message(
+                text="Доступен новый тест.\n" "Чтобы приступить, нажмите кнопку ниже",
+                reply_markup=SurveyTeacherKeyboardBuilder.get_student_start_keyboard(test_name),
+                chat_id=student,
+            )
             student_count += 1
         await query.answer()
         await SurveyTeacherStates.next()

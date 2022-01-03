@@ -34,14 +34,15 @@ class StudentHandlersChain(HandlersChain):
     async def ready_check_survey_handler(message: types.Message, state: FSMContext):
         data = await state.get_data()
         if data["type"] == "student":
-            await message.answer("Нажмите кнопку ниже, чтобы получить тест",
-                                 reply_markup=SurveyStudentKeyboardBuilder.get_ready_to_survey_keyboard())
+            await message.answer(
+                "Нажмите кнопку ниже, чтобы получить тест",
+                reply_markup=SurveyStudentKeyboardBuilder.get_ready_to_survey_keyboard(),
+            )
 
     @staticmethod
     @Registrar.callback_query_handler(lambda callback: callback.data.startswith("ready"))
     async def ready_to_pass_survey_handler(query: types.CallbackQuery, state: FSMContext):
-        data = await state.get_data()
-
+        await state.get_data()
         await query.message.edit_text("Ожидайте сообщения о начале теста")
         await SurveyStudentStates.student_ready_to_pass_test.set()
 
@@ -61,22 +62,20 @@ class StudentHandlersChain(HandlersChain):
         if separated_data[0] == "question":
             current_question = survey[question_number - 1]
 
-            answers = list(tests.get('answers'))
+            answers = list(tests.get("answers"))
             is_correct = False
-            if current_question['правильный'] == separated_data[3]:
+            if current_question["правильный"] == separated_data[3]:
                 is_correct = True
-            answer = {
-                "Вопрос": str(survey[question_number - 1]['Вопрос']),
-                "is_correct": is_correct
-            }
+            answer = {"Вопрос": str(survey[question_number - 1]["Вопрос"]), "is_correct": is_correct}
             answers.append(answer)
             tests["answers"] = answers
             await state.update_data(tests=tests)
         # Message with Q&A generation
         if question_number < len(survey):
             current_question = survey[question_number]
-            answers_kb = SurveyTeacherKeyboardBuilder.get_answers_keyboard(current_question, question_number,
-                                                                           separated_data[1])
+            answers_kb = SurveyTeacherKeyboardBuilder.get_answers_keyboard(
+                current_question, question_number, separated_data[1]
+            )
             await callback_query.message.edit_text(text=f"{current_question['Вопрос']}", reply_markup=answers_kb)
             await callback_query.answer()
         # Test is over
@@ -87,12 +86,12 @@ class StudentHandlersChain(HandlersChain):
             correct_answers = 0
 
             for answer in answers:
-                if answer['is_correct']:
+                if answer["is_correct"]:
                     correct_answers += 1
 
-            StudentHandlersChain._logger.info(f"{callback_query.from_user.username}"
-                                              f"(id:{callback_query.message.chat.id}) "
-                                              f"passed test")
+            StudentHandlersChain._logger.info(
+                f"{callback_query.from_user.username}" f"(id:{callback_query.message.chat.id}) " f"passed test"
+            )
             StudentHandlersChain._logger.info(f"Answers: {answers}")
 
             tests["answers"] = answers
