@@ -53,15 +53,35 @@ class StudentHandlersChain(HandlersChain):
         survey_sheet_name = separated_data[1]
         data = await state.get_data()
         tests = data.get("tests")
-
         survey = JsonTestFileUtil.get_test_from_file(survey_sheet_name)
         if tests is None:
             await state.update_data(tests={"is_finished": False, "answers": {}, "test_name": survey_sheet_name})
         question_number = int(separated_data[2])
         # Getting valid answers
+        await state.update_data(
+            tests=StudentHandlersChain._get_valid_answers(
+                separated_data,
+                survey,
+                question_number,
+                tests,
+            )
+        )
+        # Message with Q&A generation
+        if question_number < len(survey):
+            current_question, answers_kb = StudentHandlersChain._get_message(separated_data, survey, question_number)
+            await callback_query.message.edit_text(text=f"{current_question['Вопрос']}", reply_markup=answers_kb)
+        # Test is over
+        else:
+            tests, correct_answers = StudentHandlersChain._get_result(tests)
+            await state.update_data(tests=tests)
+            await SurveyStudentStates.next()
+            await callback_query.message.edit_text(text=f"Вы прошли тест на {correct_answers}/{len(tests['answers'])}")
+            await callback_query.answer()
+
+    @staticmethod
+    def _get_valid_answers(separated_data, survey, question_number, tests):
         if separated_data[0] == "question":
             current_question = survey[question_number - 1]
-
             answers = list(tests.get("answers"))
             is_correct = False
             if current_question["правильный"] == separated_data[3]:
@@ -69,34 +89,23 @@ class StudentHandlersChain(HandlersChain):
             answer = {"Вопрос": str(survey[question_number - 1]["Вопрос"]), "is_correct": is_correct}
             answers.append(answer)
             tests["answers"] = answers
-            await state.update_data(tests=tests)
-        # Message with Q&A generation
-        if question_number < len(survey):
-            current_question = survey[question_number]
-            answers_kb = SurveyTeacherKeyboardBuilder.get_answers_keyboard(
-                current_question, question_number, separated_data[1]
-            )
-            await callback_query.message.edit_text(text=f"{current_question['Вопрос']}", reply_markup=answers_kb)
-            await callback_query.answer()
-        # Test is over
-        else:
-            tests["is_finished"] = True
-            answers = tests.get("answers")
+        return tests
 
-            correct_answers = 0
+    @staticmethod
+    def _get_message(separated_data, survey, question_number):
+        current_question = survey[question_number]
+        answers_kb = SurveyTeacherKeyboardBuilder.get_answers_keyboard(
+            current_question, question_number, separated_data[1]
+        )
+        return current_question, answers_kb
 
-            for answer in answers:
-                if answer["is_correct"]:
-                    correct_answers += 1
-
-            StudentHandlersChain._logger.info(
-                f"{callback_query.from_user.username}" f"(id:{callback_query.message.chat.id}) " f"passed test"
-            )
-            StudentHandlersChain._logger.info(f"Answers: {answers}")
-
-            tests["answers"] = answers
-            await state.update_data(tests=tests)
-
-            await SurveyStudentStates.next()
-            await callback_query.message.edit_text(text=f"Вы прошли тест на {correct_answers}/{len(answers)}")
-            await callback_query.answer()
+    @staticmethod
+    def _get_result(tests):
+        tests["is_finished"] = True
+        answers = tests.get("answers")
+        correct_answers = 0
+        for answer in answers:
+            if answer["is_correct"]:
+                correct_answers += 1
+        tests["answers"] = answers
+        return tests, correct_answers
