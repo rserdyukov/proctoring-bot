@@ -80,23 +80,9 @@ class SurveyTeacherHandlersChain(HandlersChain):
     async def link_message_handler(message: types.Message, state: FSMContext):
         if validators.url(str(message.text)):
             await SurveyTeacherStates.starting_survey.set()
-
             await state.update_data(tests={"test_link": message.text})
             data = await state.get_data()
-            tests_data = data.get("tests")
-            test = tests_data.get("test")
-
-            question_number = 0
-            for question in test:
-                answers_kb = SurveyTeacherKeyboardBuilder.get_answers_keyboard(
-                    question, question_number, tests_data["test_name"]
-                )
-                question_number += 1
-                await message.answer(f"{question['Вопрос']}", reply_markup=answers_kb)
-            await message.answer(
-                f"Выведено {question_number} вопросов\n" f"Отправить студентам?",
-                reply_markup=SurveyTeacherKeyboardBuilder.get_start_survey_keyboard(),
-            )
+            await SurveyTeacherHandlersChain._check_test(data, message)
         else:
             await message.answer(
                 "Неправильная ссылка, попробуйте еще раз",
@@ -107,23 +93,46 @@ class SurveyTeacherHandlersChain(HandlersChain):
     @Registrar.callback_query_handler(text="send_survey", state=SurveyTeacherStates.starting_survey)
     async def start_survey_handler(query: types.CallbackQuery, state: FSMContext):
         data = await state.get_data()
-        students = data.get("students")
-        tests = data.get("tests")
-        test_name = tests.get("test_name")
-        student_count = 0
-        for student in students:
-            await query.message.bot.send_message(
-                text="Доступен новый тест.\n" "Чтобы приступить, нажмите кнопку ниже",
-                reply_markup=SurveyTeacherKeyboardBuilder.get_student_start_keyboard(test_name),
-                chat_id=student,
-            )
-            student_count += 1
+        await SurveyTeacherHandlersChain._send_test(data, query.message)
         await query.answer()
         await SurveyTeacherStates.next()
-        await query.message.edit_text(f"Опрос отправлен {student_count} студентам")
 
     @staticmethod
     @Registrar.callback_query_handler(text="cancel_survey", state="*")
     async def cancel_survey_handler(query: types.CallbackQuery, state: FSMContext):
         await query.message.edit_text("Отправка опроса отменена")
         await state.reset_state()
+
+    @staticmethod
+    async def _check_test(data, message):
+        _, tests_data, test_name = SurveyTeacherHandlersChain._parse_data(data)
+        test = tests_data.get("test")
+        question_number = 0
+        for question in test:
+            answers_kb = SurveyTeacherKeyboardBuilder.get_answers_keyboard(question, question_number, test_name)
+            question_number += 1
+            await message.answer(f"{question['Вопрос']}", reply_markup=answers_kb)
+        await message.answer(
+            f"Выведено {question_number} вопросов\n" f"Отправить студентам?",
+            reply_markup=SurveyTeacherKeyboardBuilder.get_start_survey_keyboard(),
+        )
+
+    @staticmethod
+    async def _send_test(data, message):
+        students, _, test_name = SurveyTeacherHandlersChain._parse_data(data)
+        student_count = 0
+        for student in students:
+            await message.bot.send_message(
+                text="Доступен новый тест.\n" "Чтобы приступить, нажмите кнопку ниже",
+                reply_markup=SurveyTeacherKeyboardBuilder.get_student_start_keyboard(test_name),
+                chat_id=student,
+            )
+            student_count += 1
+        await message.edit_text(f"Опрос отправлен {student_count} студентам")
+
+    @staticmethod
+    def _parse_data(data):
+        students = data.get("students")
+        tests = data.get("tests")
+        test_name = tests.get("test_name")
+        return students, tests, test_name
