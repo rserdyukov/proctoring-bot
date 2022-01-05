@@ -62,12 +62,9 @@ class StorageFactory:
 
     @staticmethod
     @abstractmethod
-    def init_tests_handler(spreadsheet_id: str, token_file_name: str) -> BaseTestsSpreadsheetHandler:
+    def init_tests_handler(token_file_name: str) -> BaseTestsSpreadsheetHandler:
         """
         Creates concrete student tests managing spreadsheet handler.
-
-        :param spreadsheet_id: Spreadsheet unique id
-        :type spreadsheet_id: :obj:`str`
 
         :param token_file_name: Spreadsheet token file name
         :type token_file_name: :obj:`str`

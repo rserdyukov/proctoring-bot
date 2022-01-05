@@ -12,10 +12,9 @@ class SpreadsheetHandler:
     Row spreadsheet handler class  implementation.
     """
 
-    def __init__(self, spreadsheet_id: str, file_name: str, sheet_attributes: Dict[str, List[str]]):
+    def __init__(self, file_name: str, spreadsheet_id: str):
         self._spreadsheet_id = spreadsheet_id
         self._credentials_file = file_name
-        self._sheet_attributes = sheet_attributes
         self._created_sheets = []
 
         self._credentials = ServiceAccountCredentials.from_json_keyfile_name(
@@ -30,17 +29,7 @@ class SpreadsheetHandler:
                 f"Open existing spreadsheet at https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0"
             )
 
-    def _pop_sheet_title(self) -> str and list:
-        keys = self._sheet_attributes.keys()
-        titles = list(keys)
-        sheet_title = titles[len(keys) - len(self._created_sheets) - 1]
-        attributes = self._sheet_attributes.get(sheet_title)
-        self._created_sheets.append(sheet_title)
-        return sheet_title, attributes
-
-    def _create_sheet(self, row_count: int, column_count: int) -> None:
-        sheet_title, attributes = self._pop_sheet_title()
-
+    def create_sheet(self, sheet_title: str) -> None:
         self._service.spreadsheets().batchUpdate(
             spreadsheetId=self._spreadsheet_id,
             body={
@@ -49,7 +38,6 @@ class SpreadsheetHandler:
                         "addSheet": {
                             "properties": {
                                 "title": sheet_title,
-                                "gridProperties": {"rowCount": row_count, "columnCount": column_count},
                             }
                         }
                     }
@@ -57,34 +45,18 @@ class SpreadsheetHandler:
             },
         ).execute()
 
-        self._service.spreadsheets().values().batchUpdate(
-            spreadsheetId=self._spreadsheet_id,
-            body={
-                "valueInputOption": "USER_ENTERED",
-                "data": [
-                    {
-                        "range": f"{sheet_title}!A1:D1",
-                        "majorDimension": "ROWS",
-                        "values": [attributes],
-                    }
-                ],
-            },
-        ).execute()
-
-    def create_spreadsheet(self, spreadsheet_title: str, row_count: int, column_count: int):
+    def create_spreadsheet(self, spreadsheet_title: str, default_sheet_title=None):
         """
-        Creates spreadsheet with title, row and column amount.
+        Creates spreadsheet with title with ability to define first sheet title.
 
         :param spreadsheet_title: Spreadsheet title
         :type spreadsheet_title: :obj:`str`
 
-        :param row_count: Spreadsheet row amount
-        :type row_count: :obj:`int`
+        :param default_sheet_title: First spreadsheet page title
+        :type default_sheet_title: :obj:`str`
 
-        :param column_count: Spreadsheet column amount
-        :type column_count: :obj:`int`
+
         """
-        sheet_title, attributes = self._pop_sheet_title()
 
         spreadsheet = (
             self._service.spreadsheets()
@@ -96,8 +68,7 @@ class SpreadsheetHandler:
                             "properties": {
                                 "sheetType": "GRID",
                                 "sheetId": 0,
-                                "title": sheet_title,
-                                "gridProperties": {"rowCount": row_count, "columnCount": column_count},
+                                "title": default_sheet_title,
                             }
                         }
                     ],
@@ -110,17 +81,6 @@ class SpreadsheetHandler:
 
         print(f"Created new spreadsheet at https://docs.google.com/spreadsheets/d/{self._spreadsheet_id}/edit#gid=0")
 
-        self._service.spreadsheets().values().batchUpdate(
-            spreadsheetId=self._spreadsheet_id,
-            body={
-                "valueInputOption": "USER_ENTERED",
-                "data": [{"range": f"{sheet_title}!A1:D1", "majorDimension": "ROWS", "values": [attributes]}],
-            },
-        ).execute()
-
-        while len(self._created_sheets) != len(self._sheet_attributes.keys()):
-            self._create_sheet(row_count, column_count)
-
         self._get_permissions()
 
     def _get_permissions(self) -> None:
@@ -129,30 +89,30 @@ class SpreadsheetHandler:
             fileId=self._spreadsheet_id, body={"type": "anyone", "role": "reader"}, fields="id"
         ).execute()
 
-    def _get_sheet_range(self, spreadsheet_title: str, corner_from: str, corner_to: str):
+    def get_sheet_values(self, sheet_title: str, corner_from: str, corner_to: str):
         return (
             self._service.spreadsheets()
             .values()
             .batchGet(
                 spreadsheetId=self._spreadsheet_id,
-                ranges=[f"{spreadsheet_title}!{corner_from}:{corner_to}"],
+                ranges=[f"{sheet_title}!{corner_from}:{corner_to}"],
                 valueRenderOption="FORMATTED_VALUE",
                 dateTimeRenderOption="FORMATTED_STRING",
             )
             .execute()
         )
 
-    def _get_first_column_sheet_range(self, spreadsheet_title: str):
-        return self._get_sheet_range(spreadsheet_title, "A1", "A1000")
+    def _get_first_column_range_values(self, spreadsheet_title: str):
+        return self.get_sheet_values(spreadsheet_title, "A1", "A1000")
 
-    def _update_spreadsheet_row(self, spreadsheet_title: str, row_number: int, values: List[str]) -> None:
+    def _update_spreadsheet_row(self, sheet_title: str, row_number: int, values: List[str]) -> None:
         self._service.spreadsheets().values().batchUpdate(
             spreadsheetId=self._spreadsheet_id,
             body={
                 "valueInputOption": "USER_ENTERED",
                 "data": [
                     {
-                        "range": f"{spreadsheet_title}!A{row_number}:D{row_number}",
+                        "range": f"{sheet_title}!A{row_number}:Z{row_number}",
                         "majorDimension": "ROWS",
                         "values": [values],
                     },
@@ -160,20 +120,20 @@ class SpreadsheetHandler:
             },
         ).execute()
 
-    def add_row(self, spreadsheet_title: str, row: List[str]):
+    def add_row(self, sheet_title: str, row: List[str]):
         """
         Adds one single row with fields in spreadsheet.
 
         Note: If such row exists then it will change.
 
-        :param spreadsheet_title: Spreadsheet title
-        :type spreadsheet_title: :obj:`str`
+        :param sheet_title: Sheet title
+        :type sheet_title: :obj:`str`
 
         :param row: Spreadsheet appendable row
         :type row: :obj:`List[str]`
         """
         first_row_element = row[0]
-        results = self._get_first_column_sheet_range(spreadsheet_title)
+        results = self._get_first_column_range_values(sheet_title)
         sheet_values = results["valueRanges"][0]["values"]
         row_number = len(sheet_values) + 1
 
@@ -185,16 +145,16 @@ class SpreadsheetHandler:
                 row_number = sheet_values.index([first_row_element]) + 1
                 break
 
-        self._update_spreadsheet_row(spreadsheet_title, row_number, row)
+        self._update_spreadsheet_row(sheet_title, row_number, row)
 
-    def remove_row(self, spreadsheet_title: str, first_row_element: str) -> bool:
+    def remove_row(self, sheet_title: str, first_row_element: str) -> bool:
         """
         Removes one single row with fields from spreadsheet.
 
         Note: If such row doesn't exist then it won't be removed.
 
-        :param spreadsheet_title: Spreadsheet title
-        :type spreadsheet_title: :obj:`str`
+        :param sheet_title: Spreadsheet title
+        :type sheet_title: :obj:`str`
 
         :param first_row_element: First field in removable row
         :type first_row_element: :obj:`str`
@@ -202,7 +162,7 @@ class SpreadsheetHandler:
         :return: Returns True on success.
         :rtype: :obj:`bool`
         """
-        results = self._get_first_column_sheet_range(spreadsheet_title)
+        results = self._get_first_column_range_values(sheet_title)
         sheet_values = results["valueRanges"][0]["values"]
 
         if sheet_values.count([first_row_element]) == 0:
@@ -211,36 +171,36 @@ class SpreadsheetHandler:
         row_number = sheet_values.index([first_row_element]) + 1
 
         empty_string_list = []
-        for i in range(len(self._sheet_attributes.get(spreadsheet_title))):
+        for i in range(len(self.get_sheet_values(sheet_title, "A1", "Z1")["valueRanges"][0]["values"][0])):
             empty_string_list.append("")
 
-        self._update_spreadsheet_row(spreadsheet_title, row_number, empty_string_list)
+        self._update_spreadsheet_row(sheet_title, row_number, empty_string_list)
         return True
 
-    def get_first_column_sheet_range(self, spreadsheet_title: str) -> list:
+    def get_first_column_values(self, sheet_title: str) -> list:
         """
         Gets first column in spreadsheet.
 
         Note: If such first column doesn't exist then None will be returned.
 
-        :param spreadsheet_title: Spreadsheet title
-        :type spreadsheet_title: :obj:`str`
+        :param sheet_title: Spreadsheet title
+        :type sheet_title: :obj:`str`
 
         :return: Returns first column with fields in spreadsheet.
         :rtype: :obj:`list[str]`
         """
-        results = self._get_first_column_sheet_range(spreadsheet_title)
+        results = self._get_first_column_range_values(sheet_title)
         sheet_values = results["valueRanges"][0]["values"]
         return list(filter(lambda v: v != [], sheet_values[1:]))
 
-    def get_row_by_first_element(self, spreadsheet_title: str, element: str) -> dict:
+    def get_row_by_first_element(self, sheet_title: str, element: str) -> dict:
         """
         Gets row in spreadsheet by its first field.
 
         Note: If such row doesn't exist then {} will be returned.
 
-        :param spreadsheet_title: Spreadsheet title
-        :type spreadsheet_title: :obj:`str`
+        :param sheet_title: Spreadsheet title
+        :type sheet_title: :obj:`str`
 
         :param element: First field in row
         :type element: :obj:`str`
@@ -249,20 +209,35 @@ class SpreadsheetHandler:
         :rtype: :obj:`dict[str, str]`
         """
         alphabet_start_index = 64
-        right_corner = chr(alphabet_start_index + len(self._sheet_attributes.get(spreadsheet_title)))
-        results = self._get_sheet_range(spreadsheet_title, "A2", f"{right_corner}1000")
+        right_corner = chr(alphabet_start_index + self._get_first_row_length(sheet_title))
+        results = self.get_sheet_values(sheet_title, "A2", f"{right_corner}1000")
 
         if results["valueRanges"][0].get("values"):
             sheet_values = results["valueRanges"][0]["values"]
         else:
             return {}
 
+        print(sheet_values)
         row = {}
         i = 0
         for sheet_row in sheet_values:
             if sheet_row and sheet_row[0] == element:
-                for attribute in self._sheet_attributes.get(spreadsheet_title):
+                for attribute in self._get_sheet_attributes(sheet_title):
                     row[attribute] = sheet_row[i]
                     i += 1
 
         return row
+
+    def _get_first_row_length(self, sheet_title: str):
+        return len(self.get_sheet_values(sheet_title, "A1", "Z1")["valueRanges"][0]["values"][0])
+
+    def _get_sheet_attributes(self, sheet_title: str):
+        return self.get_sheet_values(sheet_title, "A1", "Z1")["valueRanges"][0]["values"][0]
+
+    def get_spreadsheet_page_names(self):
+        sheet_metadata = self._service.spreadsheets().get(spreadsheetId=self._spreadsheet_id).execute()
+        sheets = sheet_metadata.get("sheets", "")
+        sheet_names = []
+        for sheet in sheets:
+            sheet_names.append(sheet["properties"]["title"])
+        return sheet_names

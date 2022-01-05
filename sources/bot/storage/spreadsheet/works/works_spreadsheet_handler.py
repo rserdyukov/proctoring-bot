@@ -5,15 +5,15 @@ from .base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
 
 class WorksSpreadsheetHandler(BaseWorksSpreadsheetHandler):
     def __init__(self, spreadsheet_id: str, file_name: str):
-        _attributes = {
+        self._attributes = {
             "works": ["username", "ФИО", "Группа", "Подгруппа", "Лабораторная работа"],
         }
-        self._handler = SpreadsheetHandler(spreadsheet_id, file_name, _attributes)
-        self._works_sheet_title = list(_attributes.keys())[0]
+        self._handler = SpreadsheetHandler(file_name, spreadsheet_id)
+        self._works_sheet_title = list(self._attributes.keys())[0]
 
-    def create_spreadsheet(self, spreadsheet_title="Информация о лабораторных работах",
-                           row_count=1000, column_count=10) -> None:
-        self._handler.create_spreadsheet(spreadsheet_title, row_count, column_count)
+    def create_spreadsheet(self, spreadsheet_title="Информация о лабораторных работах") -> None:
+        self._handler.create_spreadsheet(spreadsheet_title)
+        self._handler.add_row(spreadsheet_title, self._attributes.get("works"))
 
     def add_student_work(self, username: str, works_data: str, **kwargs) -> None:
         name = kwargs.get("name")

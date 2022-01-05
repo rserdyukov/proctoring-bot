@@ -15,16 +15,19 @@ class AuthSpreadsheetHandler(BaseAuthSpreadsheetHandler):
     """
 
     def __init__(self, spreadsheet_id: str, file_name: str):
-        _attributes = {
+        self._attributes = {
             "Студенты": ["username", "ФИО", "Группа", "Подгруппа"],
             "Преподаватели": ["username", "ФИО"],
         }
-        self._handler = SpreadsheetHandler(spreadsheet_id, file_name, _attributes)
-        self._student_sheet_title = list(_attributes.keys())[0]
-        self._teacher_sheet_title = list(_attributes.keys())[1]
+        self._handler = SpreadsheetHandler(file_name, spreadsheet_id)
+        self._student_sheet_title = list(self._attributes.keys())[0]
+        self._teacher_sheet_title = list(self._attributes.keys())[1]
 
-    def create_spreadsheet(self, spreadsheet_title="Информация о людях", row_count=1000, column_count=10):
-        self._handler.create_spreadsheet(spreadsheet_title, row_count, column_count)
+    def create_spreadsheet(self, spreadsheet_title="Информация о людях"):
+        self._handler.create_spreadsheet(spreadsheet_title, self._student_sheet_title)
+        self._handler.add_row(self._student_sheet_title, self._attributes.get(self._student_sheet_title))
+        self._handler.create_sheet(self._teacher_sheet_title)
+        self._handler.add_row(self._teacher_sheet_title, self._attributes.get(self._teacher_sheet_title))
 
     def add_student(self, username: str, **kwargs):
         name = kwargs.get("name")
@@ -44,7 +47,7 @@ class AuthSpreadsheetHandler(BaseAuthSpreadsheetHandler):
         return self._handler.remove_row(self._student_sheet_title, username)
 
     def get_student_usernames(self) -> List[str]:
-        return self._handler.get_first_column_sheet_range(self._student_sheet_title)
+        return self._handler.get_first_column_values(self._student_sheet_title)
 
     def get_student_by_username(self, username: str) -> dict:
         student = {}
@@ -70,7 +73,7 @@ class AuthSpreadsheetHandler(BaseAuthSpreadsheetHandler):
         return self._handler.remove_row(self._teacher_sheet_title, username)
 
     def get_teacher_usernames(self) -> List[str]:
-        return self._handler.get_first_column_sheet_range(self._teacher_sheet_title)
+        return self._handler.get_first_column_values(self._teacher_sheet_title)
 
     def get_teacher_by_username(self, username: str) -> dict:
         teacher = {}

@@ -93,7 +93,24 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
                 await self._register_work(username, works_data, auth_data)
 
         if tests_data is not None:
-            pass
+            if user_type == "teacher" and tests_data.get("test_link"):
+                await self._receive_test(tests_data, tests_data.get("test_link"))
+            if user_type == "student" and tests_data.get("is_finished"):
+                await self._write_answers(tests_data, auth_data)
+
+    async def _write_answers(self, tests_data, auth_data):
+        tests_handler: BaseTestsSpreadsheetHandler = self._tests_handler
+        tests_handler.add_result_to_worksheet(tests_data["test_name"], auth_data["name"], tests_data["answers"])
+
+    async def _receive_test(self, tests_data, test_link: str):
+        tests_handler: BaseTestsSpreadsheetHandler = self._tests_handler
+        auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
+        test_name, test = tests_handler.load_test_by_link(test_link)
+        if tests_data.get("test") is None:
+            tests_data["test"] = test
+            tests_data["test_name"] = test_name
+            # needs to be changed to ids instead of usernames
+            tests_data["students"] = auth_handler.get_student_usernames()
 
     async def _register_work(self, username, works_data, auth_data):
         works_handler: BaseWorksSpreadsheetHandler = self._works_handler
