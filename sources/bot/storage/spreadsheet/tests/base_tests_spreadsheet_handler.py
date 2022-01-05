@@ -12,7 +12,7 @@ class BaseTestsSpreadsheetHandler(BaseSpreadsheetHandler):
         pass
 
     def accept_storage(self, storage):
-        storage.visit_works_handler(self)
+        storage.visit_tests_handler(self)
 
     @abstractmethod
     def load_test_by_link(self, url: str) -> list:
