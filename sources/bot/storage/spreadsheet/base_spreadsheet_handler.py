@@ -12,18 +12,13 @@ class BaseSpreadsheetHandler:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def create_spreadsheet(self, spreadsheet_title: str = None, row_count: int = None, column_count: int = None):
+    def create_spreadsheet(self, spreadsheet_title: str = None):
         """
-        Creates concrete spreadsheet with title, row and column amount.
+        Creates spreadsheet
 
         :param spreadsheet_title: Spreadsheet title
         :type spreadsheet_title: :obj:`str`
 
-        :param row_count: Spreadsheet row amount
-        :type row_count: :obj:`int`
-
-        :param column_count: Spreadsheet column amount
-        :type column_count: :obj:`int`
         """
         raise NotImplementedError
 

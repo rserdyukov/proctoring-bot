@@ -32,6 +32,6 @@ class SpreadsheetStorageFactory(StorageFactory):
         return works_handler
 
     @staticmethod
-    def init_tests_handler(spreadsheet_id, token_file_name) -> BaseTestsSpreadsheetHandler:
-        tests_handler = TestsSpreadsheetHandler(spreadsheet_id, token_file_name)
+    def init_tests_handler(token_file_name) -> BaseTestsSpreadsheetHandler:
+        tests_handler = TestsSpreadsheetHandler(token_file_name)
         return tests_handler
