@@ -28,7 +28,7 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
             self.data[chat_id] = {}
         if user_id not in self.data[chat_id]:
             self.data[chat_id][user_id] = {"state": None, "data": {"type": None, "auth": {}}, "bucket": {}}
-
+            
         return chat_id, user_id
 
     async def wait_closed(self):
@@ -39,7 +39,6 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
     async def get_data(self, *, chat=None, user=None, default=None) -> Dict:
         chat, user = self.resolve_address(chat=chat, user=user)
-
         return await self._get_table_data(self.data[chat][user]["data"])
 
     async def _get_table_data(self, user_data):
