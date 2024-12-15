@@ -72,11 +72,12 @@ class MainHandlersChain(HandlersChain):
 
     @staticmethod
     async def _start_routine(message: types.Message, state: FSMContext):
+        user_id = message.from_user.id
         username = message.from_user.username
         greeting = f"Привет, {message.from_user.first_name} (@{username}).\n"
         bot = await Registrar.bot.get_me()
 
-        await state.update_data(username=username)
+        await state.update_data(user_id=user_id)
         data = await state.get_data()
         data_size = len(data.get("auth").keys())
         not_registered = data_size != 3 and data_size != 1
@@ -155,7 +156,7 @@ class MainHandlersChain(HandlersChain):
     @Registrar.message_handler(commands=["info"])
     async def get_info_handler(message: types.Message, state: FSMContext):
         """
-        Sends to user information: username, name, group and subgroup by 'info' command.
+        Sends to user information: user_id, name, group and subgroup by 'info' command.
 
         :param message: User message data
         :type message: :obj:`types.Message`
@@ -170,7 +171,7 @@ class MainHandlersChain(HandlersChain):
     @Registrar.callback_query_handler(text="info")
     async def get_info_handler(query: types.CallbackQuery, state: FSMContext):
         """
-        Sends to user information: username, name, group and subgroup by 'info' callback query message.
+        Sends to user information: user_id, name, group and subgroup by 'info' callback query message.
 
         :param query: Callback query message
         :type query: :obj:`types.CallbackQuery`
@@ -184,7 +185,7 @@ class MainHandlersChain(HandlersChain):
     @staticmethod
     def get_info(user_data) -> str:
         """
-        Gets to user information: username, name, group and subgroup from spreadsheet storage.
+        Gets to user information: user_id, name, group and subgroup from spreadsheet storage.
 
         :param user_data: User data
         :type user_data: :obj:`dict[Any]`

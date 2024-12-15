@@ -46,14 +46,29 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
         return copy.deepcopy(user_data)
 
+    # async def _upload_register_data(self, user_data):
+    #     auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
+    #     username = user_data.get("username")
+    #     auth_data = user_data.get("auth")
+
+    #     if auth_data == {}:
+    #         student = auth_handler.get_student_by_username(username)
+    #         teacher = auth_handler.get_teacher_by_username(username)
+
+    #         if student != {}:
+    #             user_data["auth"] = student
+    #             user_data["type"] = "student"
+    #         elif teacher != {}:
+    #             user_data["auth"] = teacher
+    #             user_data["type"] = "teacher"
     async def _upload_register_data(self, user_data):
         auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
-        username = user_data.get("username")
+        user_id = user_data.get("user_id")
         auth_data = user_data.get("auth")
 
         if auth_data == {}:
-            student = auth_handler.get_student_by_username(username)
-            teacher = auth_handler.get_teacher_by_username(username)
+            student = auth_handler.get_student_by_user_id(user_id)
+            teacher = auth_handler.get_teacher_by_user_id(user_id)
 
             if student != {}:
                 user_data["auth"] = student
@@ -62,6 +77,20 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
                 user_data["auth"] = teacher
                 user_data["type"] = "teacher"
 
+    # async def update_data(self, *, chat=None, user=None, data=None, **kwargs):
+    #     if data is None:
+    #         data = {}
+
+    #     chat, user = self.resolve_address(chat=chat, user=user)
+    #     user_data = self.data[chat][user]["data"]
+    #     user_data.update(data, **kwargs)
+
+    #     if user_data.get("type") is None:
+    #         user_data["type"] = "student"
+    #     if user_data.get("username") is None and kwargs.get("username"):
+    #         user_data["username"] = kwargs.get("username")
+
+    #     await self._update_table(user_data)
     async def update_data(self, *, chat=None, user=None, data=None, **kwargs):
         if data is None:
             data = {}
@@ -72,13 +101,32 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
         if user_data.get("type") is None:
             user_data["type"] = "student"
-        if user_data.get("username") is None and kwargs.get("username"):
-            user_data["username"] = kwargs.get("username")
+        if user_data.get("user_id") is None and kwargs.get("user_id"):
+            user_data["user_id"] = kwargs.get("user_id")
 
         await self._update_table(user_data)
 
+    # async def _update_table(self, user_data):
+    #     username = user_data.get("username")
+    #     user_type = user_data.get("type")
+    #     auth_data = user_data.get("auth")
+    #     works_data = user_data.get("works")
+    #     tests_data = user_data.get("tests")
+
+    #     if auth_data is not None:
+    #         if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
+    #             await self._register_user(username, user_type, auth_data)
+    #     if works_data is not None:
+    #         if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
+    #             await self._register_work(username, works_data, auth_data)
+
+    #     if tests_data is not None:
+    #         if user_type == "teacher" and tests_data.get("test_link"):
+    #             await self._receive_test(tests_data, tests_data.get("test_link"))
+    #         if user_type == "student" and tests_data.get("is_finished"):
+    #             await self._write_answers(tests_data, auth_data)
     async def _update_table(self, user_data):
-        username = user_data.get("username")
+        user_id = user_data.get("user_id")
         user_type = user_data.get("type")
         auth_data = user_data.get("auth")
         works_data = user_data.get("works")
@@ -86,10 +134,10 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
         if auth_data is not None:
             if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
-                await self._register_user(username, user_type, auth_data)
+                await self._register_user(user_id, user_type, auth_data)
         if works_data is not None:
             if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
-                await self._register_work(username, works_data, auth_data)
+                await self._register_work(user_id, works_data, auth_data)
 
         if tests_data is not None:
             if user_type == "teacher" and tests_data.get("test_link"):
@@ -101,6 +149,15 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
         tests_handler: BaseTestsSpreadsheetHandler = self._tests_handler
         tests_handler.add_result_to_worksheet(tests_data["test_name"], auth_data["name"], tests_data["answers"])
 
+    # async def _receive_test(self, tests_data, test_link: str):
+    #     tests_handler: BaseTestsSpreadsheetHandler = self._tests_handler
+    #     auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
+    #     test_name, test = tests_handler.load_test_by_link(test_link)
+    #     if tests_data.get("test") is None:
+    #         tests_data["test"] = test
+    #         tests_data["test_name"] = test_name
+    #         # needs to be changed to ids instead of usernames
+    #         tests_data["students"] = auth_handler.get_student_usernames()
     async def _receive_test(self, tests_data, test_link: str):
         tests_handler: BaseTestsSpreadsheetHandler = self._tests_handler
         auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
@@ -108,22 +165,34 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
         if tests_data.get("test") is None:
             tests_data["test"] = test
             tests_data["test_name"] = test_name
-            # needs to be changed to ids instead of usernames
-            tests_data["students"] = auth_handler.get_student_usernames()
+            # needs to be changed to ids instead of user_ids
+            tests_data["students"] = auth_handler.get_student_user_ids()
 
-    async def _register_work(self, username, works_data, auth_data):
+    # async def _register_work(self, username, works_data, auth_data):
+    #     works_handler: BaseWorksSpreadsheetHandler = self._works_handler
+    #     works_handler.add_student_work(username, works_data, **auth_data)
+    async def _register_work(self, user_id, works_data, auth_data):
         works_handler: BaseWorksSpreadsheetHandler = self._works_handler
-        works_handler.add_student_work(username, works_data, **auth_data)
+        works_handler.add_student_work(user_id, works_data, **auth_data)
 
-    async def _register_user(self, username, user_type, auth_data):
+    # async def _register_user(self, username, user_type, auth_data):
+    #     auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
+
+    #     if user_type == "student":
+    #         if auth_handler.get_student_by_username(username) == {}:
+    #             auth_handler.add_student(username, **auth_data)
+    #     elif user_type == "teacher":
+    #         if auth_handler.get_teacher_by_username(username) == {}:
+    #             auth_handler.add_student(username, **auth_data)
+    async def _register_user(self, user_id, user_type, auth_data):
         auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
 
         if user_type == "student":
-            if auth_handler.get_student_by_username(username) == {}:
-                auth_handler.add_student(username, **auth_data)
+            if auth_handler.get_student_by_user_id(user_id) == {}:
+                auth_handler.add_student(user_id, **auth_data)
         elif user_type == "teacher":
-            if auth_handler.get_teacher_by_username(username) == {}:
-                auth_handler.add_student(username, **auth_data)
+            if auth_handler.get_teacher_by_user_id(user_id) == {}:
+                auth_handler.add_student(user_id, **auth_data)
 
     def _cleanup(self, chat, user):
         chat, user = self.resolve_address(chat=chat, user=user)

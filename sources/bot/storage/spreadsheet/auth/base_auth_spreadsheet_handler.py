@@ -14,13 +14,122 @@ class BaseAuthSpreadsheetHandler(BaseSpreadsheetHandler):
 
     __metaclass__ = ABCMeta
 
+    # @abstractmethod
+    # def add_student(self, username: str, **kwargs):
+    #     """
+    #     Adds student data in spreadsheet.
+
+    #     :param username: Student username
+    #     :type username: :obj:`str`
+
+    #     :param kwargs: Student data
+    #     :type kwargs: :obj:`dict`
+    #     """
+    #     raise NotImplementedError
+
+    # @abstractmethod
+    # def remove_student(self, username: str) -> bool:
+    #     """
+    #     Removes student with fields from spreadsheet by his username.
+
+    #     Note: If such student doesn't exist then it won't be removed.
+
+    #     :param username: Student username
+    #     :type username: :obj:`str`
+
+    #     :return: Returns True on success.
+    #     :rtype: :obj:`bool`
+    #     """
+    #     return False
+
+    # @abstractmethod
+    # def get_student_usernames(self) -> List[str]:
+    #     """
+    #     Gets all student usernames from spreadsheet.
+
+    #     Note: If such students don't exist then [] will be returned.
+
+    #     :return: Returns usernames list.
+    #     :rtype: :obj:`List[str]`
+    #     """
+    #     raise NotImplementedError
+
+    # @abstractmethod
+    # def get_student_by_username(self, username: str) -> dict:
+    #     """
+    #     Gets student with fields from spreadsheet by his username.
+
+    #     Note: If such student doesn't exist then {} will be returned.
+
+    #     :param username: Student username
+    #     :type username: :obj:`str`
+
+    #     :return: Returns student data.
+    #     :rtype: :obj:`dict`
+    #     """
+    #     raise NotImplementedError
+
+    # @abstractmethod
+    # def add_teacher(self, username: str, **kwargs):
+    #     """
+    #     Adds teacher data in spreadsheet.
+
+    #     :param username: Teacher username
+    #     :type username: :obj:`str`
+
+    #     :param kwargs: Teacher data
+    #     :type kwargs: :obj:`dict`
+    #     """
+    #     raise NotImplementedError
+
+    # @abstractmethod
+    # def remove_teacher(self, username: str) -> bool:
+    #     """
+    #     Removes teacher with fields from spreadsheet by his username.
+
+    #     Note: If such teacher doesn't exist then it won't be removed.
+
+    #     :param username: Teacher username
+    #     :type username: :obj:`str`
+
+    #     :return: Returns True on success.
+    #     :rtype: :obj:`bool`
+    #     """
+    #     return False
+
+    # @abstractmethod
+    # def get_teacher_usernames(self) -> List[str]:
+    #     """
+    #     Gets all teacher usernames from spreadsheet.
+
+    #     Note: If such teachers don't exist then [] will be returned.
+
+    #     :return: Returns usernames list.
+    #     :rtype: :obj:`List[str]`
+    #     """
+    #     raise NotImplementedError
+
+    # @abstractmethod
+    # def get_teacher_by_username(self, username: str) -> dict:
+    #     """
+    #     Gets teacher with fields from spreadsheet by his username.
+
+    #     Note: If such teacher doesn't exist then {} will be returned.
+
+    #     :param username: Teacher username
+    #     :type username: :obj:`str`
+
+    #     :return: Returns teacher data.
+    #     :rtype: :obj:`dict`
+    #     """
+    #     raise NotImplementedError
     @abstractmethod
-    def add_student(self, username: str, **kwargs):
+    def add_student(self, user_id: str, **kwargs):
         """
         Adds student data in spreadsheet.
 
-        :param username: Student username
-        :type username: :obj:`str`
+        :param user_id: Student user_id
+        :type user_id: :obj:`str`
 
         :param kwargs: Student data
         :type kwargs: :obj:`dict`
@@ -28,14 +137,14 @@ class BaseAuthSpreadsheetHandler(BaseSpreadsheetHandler):
         raise NotImplementedError
 
     @abstractmethod
-    def remove_student(self, username: str) -> bool:
+    def remove_student(self, user_id: str) -> bool:
         """
-        Removes student with fields from spreadsheet by his username.
+        Removes student with fields from spreadsheet by his user_id.
 
         Note: If such student doesn't exist then it won't be removed.
 
-        :param username: Student username
-        :type username: :obj:`str`
+        :param user_id: Student user_id
+        :type user_id: :obj:`str`
 
         :return: Returns True on success.
         :rtype: :obj:`bool`
@@ -43,26 +152,26 @@ class BaseAuthSpreadsheetHandler(BaseSpreadsheetHandler):
         return False
 
     @abstractmethod
-    def get_student_usernames(self) -> List[str]:
+    def get_student_user_ids(self) -> List[str]:
         """
-        Gets all student usernames from spreadsheet.
+        Gets all student user_ids from spreadsheet.
 
         Note: If such students don't exist then [] will be returned.
 
-        :return: Returns usernames list.
+        :return: Returns user_ids list.
         :rtype: :obj:`List[str]`
         """
         raise NotImplementedError
 
     @abstractmethod
-    def get_student_by_username(self, username: str) -> dict:
+    def get_student_by_user_id(self, user_id: str) -> dict:
         """
-        Gets student with fields from spreadsheet by his username.
+        Gets student with fields from spreadsheet by his user_id.
 
         Note: If such student doesn't exist then {} will be returned.
 
-        :param username: Student username
-        :type username: :obj:`str`
+        :param user_id: Student user_id
+        :type user_id: :obj:`str`
 
         :return: Returns student data.
         :rtype: :obj:`dict`
@@ -70,12 +179,12 @@ class BaseAuthSpreadsheetHandler(BaseSpreadsheetHandler):
         raise NotImplementedError
 
     @abstractmethod
-    def add_teacher(self, username: str, **kwargs):
+    def add_teacher(self, user_id: str, **kwargs):
         """
         Adds teacher data in spreadsheet.
 
-        :param username: Teacher username
-        :type username: :obj:`str`
+        :param user_id: Teacher user_id
+        :type user_id: :obj:`str`
 
         :param kwargs: Teacher data
         :type kwargs: :obj:`dict`
@@ -83,14 +192,14 @@ class BaseAuthSpreadsheetHandler(BaseSpreadsheetHandler):
         raise NotImplementedError
 
     @abstractmethod
-    def remove_teacher(self, username: str) -> bool:
+    def remove_teacher(self, user_id: str) -> bool:
         """
-        Removes teacher with fields from spreadsheet by his username.
+        Removes teacher with fields from spreadsheet by his user_id.
 
         Note: If such teacher doesn't exist then it won't be removed.
 
-        :param username: Teacher username
-        :type username: :obj:`str`
+        :param user_id: Teacher user_id
+        :type user_id: :obj:`str`
 
         :return: Returns True on success.
         :rtype: :obj:`bool`
@@ -98,26 +207,26 @@ class BaseAuthSpreadsheetHandler(BaseSpreadsheetHandler):
         return False
 
     @abstractmethod
-    def get_teacher_usernames(self) -> List[str]:
+    def get_teacher_user_ids(self) -> List[str]:
         """
-        Gets all teacher usernames from spreadsheet.
+        Gets all teacher user_ids from spreadsheet.
 
         Note: If such teachers don't exist then [] will be returned.
 
-        :return: Returns usernames list.
+        :return: Returns user_ids list.
         :rtype: :obj:`List[str]`
         """
         raise NotImplementedError
 
     @abstractmethod
-    def get_teacher_by_username(self, username: str) -> dict:
+    def get_teacher_by_user_id(self, user_id: str) -> dict:
         """
-        Gets teacher with fields from spreadsheet by his username.
+        Gets teacher with fields from spreadsheet by his user_id.
 
         Note: If such teacher doesn't exist then {} will be returned.
 
-        :param username: Teacher username
-        :type username: :obj:`str`
+        :param user_id: Teacher user_id
+        :type user_id: :obj:`str`
 
         :return: Returns teacher data.
         :rtype: :obj:`dict`

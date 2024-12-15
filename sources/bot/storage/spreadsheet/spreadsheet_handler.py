@@ -221,7 +221,7 @@ class SpreadsheetHandler:
         row = {}
         i = 0
         for sheet_row in sheet_values:
-            if sheet_row and sheet_row[0] == element:
+            if sheet_row and int(sheet_row[0]) == element:
                 for attribute in self._get_sheet_attributes(sheet_title):
                     row[attribute] = sheet_row[i]
                     i += 1
