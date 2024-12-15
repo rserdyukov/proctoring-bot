@@ -27,6 +27,9 @@ share/python-wheels/
 *.egg
 MANIFEST
 */settings.ini
+*/tokens/auth_token.json
+*/tokens/tests_token.json
+*/tokens/works_token.json
 */*.json
 
 # PyInstaller
