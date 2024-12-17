@@ -43,8 +43,21 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
     async def _get_table_data(self, user_data):
         await self._upload_register_data(user_data)
+        if user_data['type'] == 'teacher':
+            await self._upload_students_data(user_data)
 
         return copy.deepcopy(user_data)
+
+    async def _upload_students_data(self, user_data):
+        auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
+        students_data = user_data.get("students") if not user_data.get("students") is None else {}
+
+        if students_data == {}:
+            students_ids = auth_handler.get_student_user_ids()
+            for stud_id in students_ids:
+                student = auth_handler.get_student_by_user_id(int(stud_id[0]))
+                students_data[stud_id[0]] = student
+        user_data["students"] = students_data
 
     async def _upload_register_data(self, user_data):
         auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
