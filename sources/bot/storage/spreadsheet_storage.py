@@ -8,6 +8,7 @@ from .base_spreadsheet_storage import BaseSpreadsheetStorage
 from .spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
 from .spreadsheet.tests.base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
 from .spreadsheet.works.base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
+from .spreadsheet.subjects.base_subject_spreadsheet_handler import BaseSubjectsSpreadsheetHandler
 
 
 class SpreadsheetStorage(BaseSpreadsheetStorage):
@@ -20,6 +21,7 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
         self._auth_handler = None
         self._works_handler = None
         self._tests_handler = None
+        self._subjects_handler = None
 
     def resolve_address(self, chat, user):
         chat_id, user_id = map(str, self.check_address(chat=chat, user=user))
@@ -84,10 +86,12 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
         auth_data = user_data.get("auth")
         works_data = user_data.get("works")
         tests_data = user_data.get("tests")
+        subjects_data = user_data.get("subjects")
 
         if auth_data is not None:
             if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
                 await self._register_user(username, user_type, auth_data)
+
         if works_data is not None:
             if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
                 await self._register_work(username, works_data, auth_data)
@@ -97,6 +101,10 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
                 await self._receive_test(tests_data, tests_data.get("test_link"))
             if user_type == "student" and tests_data.get("is_finished"):
                 await self._write_answers(tests_data, auth_data)
+
+        if subjects_data is not None:
+            if user_type == "teacher":
+                await self._add_subject(subjects_data)
 
     async def _write_answers(self, tests_data, auth_data):
         tests_handler: BaseTestsSpreadsheetHandler = self._tests_handler
@@ -109,7 +117,7 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
         if tests_data.get("test") is None:
             tests_data["test"] = test
             tests_data["test_name"] = test_name
-            # needs to be changed to ids instead of usernames
+            # Needs to be changed to IDs instead of usernames
             tests_data["students"] = auth_handler.get_student_usernames()
 
     async def _register_work(self, username, works_data, auth_data):
@@ -124,7 +132,15 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
                 auth_handler.add_student(username, **auth_data)
         elif user_type == "teacher":
             if auth_handler.get_teacher_by_username(username) == {}:
-                auth_handler.add_student(username, **auth_data)
+                auth_handler.add_teacher(username, **auth_data)
+
+    async def _add_subject(self, subjects_data):
+        subjects_handler: BaseSubjectsSpreadsheetHandler = self._subjects_handler
+        subject_name = subjects_data.get("subject_name")
+        subject_description = subjects_data.get("subject_description")
+
+        if subject_name and subject_description:
+            subjects_handler.add_subject(subject_name, subject_description)
 
     def _cleanup(self, chat, user):
         chat, user = self.resolve_address(chat=chat, user=user)
@@ -141,3 +157,6 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
     def visit_tests_handler(self, tests_handler: BaseTestsSpreadsheetHandler):
         self._tests_handler = tests_handler
+
+    def visit_subjects_handler(self, subjects_handler: BaseSubjectsSpreadsheetHandler):
+        self._subjects_handler = subjects_handler
