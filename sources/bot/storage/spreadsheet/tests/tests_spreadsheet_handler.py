@@ -13,7 +13,7 @@ from ..util.test_to_json_file import JsonTestFileUtil
 class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
     def __init__(self, credentials_file_name: str):
         self._credentials_file_name = credentials_file_name
-        self._handler = SpreadsheetHandler("", credentials_file_name)
+        self._handler = SpreadsheetHandler(credentials_file_name, "")
         self._http_auth = ServiceAccountCredentials.from_json_keyfile_name(
             credentials_file_name,
             ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"],
@@ -26,7 +26,7 @@ class TestsSpreadsheetHandler(BaseTestsSpreadsheetHandler):
         self._handler = SpreadsheetHandler(spreadsheet_id, self._credentials_file_name)
         return self._get_test()
 
-    def _get_test(self) -> tuple[str, list[dict]]:
+    def _get_test(self) :
         try:
             test_name = self._handler.get_spreadsheet_page_names()[0]
             sheet_data = self._handler.get_sheet_values(test_name, "A1", "Z1000")

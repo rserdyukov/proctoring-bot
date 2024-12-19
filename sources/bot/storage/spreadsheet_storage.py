@@ -8,6 +8,7 @@ from .base_spreadsheet_storage import BaseSpreadsheetStorage
 from .spreadsheet.auth.base_auth_spreadsheet_handler import BaseAuthSpreadsheetHandler
 from .spreadsheet.tests.base_tests_spreadsheet_handler import BaseTestsSpreadsheetHandler
 from .spreadsheet.works.base_works_spreadsheet_handler import BaseWorksSpreadsheetHandler
+from .spreadsheet.works.works_spreadsheet_handler import WorksSpreadsheetHandler
 
 
 class SpreadsheetStorage(BaseSpreadsheetStorage):
@@ -44,7 +45,7 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
 
     async def _get_table_data(self, user_data):
         await self._upload_register_data(user_data)
-
+        await self._upload_works_data(user_data) #needs for uploading labs table values
         return copy.deepcopy(user_data)
 
     async def _upload_register_data(self, user_data):
@@ -52,7 +53,7 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
         username = user_data.get("username")
         auth_data = user_data.get("auth")
 
-        if auth_data == {}:
+        if auth_data == {} or auth_data is None:
             student = auth_handler.get_student_by_username(username)
             teacher = auth_handler.get_teacher_by_username(username)
 
@@ -62,6 +63,17 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
             elif teacher != {}:
                 user_data["auth"] = teacher
                 user_data["type"] = "teacher"
+            await self._upload_works_data(user_data)
+
+    async def _upload_works_data(self, user_data):
+        works_handler: WorksSpreadsheetHandler = self._works_handler
+        username = user_data.get("username")
+        works_data = user_data.get("labs", {})
+
+        if not works_data:
+            lab_works = works_handler.get_lab_works()
+            user_data["labs"] = lab_works
+        return user_data
 
     async def update_data(self, *, chat=None, user=None, data=None, **kwargs):
         if data is None:
@@ -79,10 +91,13 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
         await self._update_table(user_data)
 
     async def _update_table(self, user_data):
+        print(f"_update_table -----> {user_data}")
         username = user_data.get("username")
         user_type = user_data.get("type")
         auth_data = user_data.get("auth")
         works_data = user_data.get("works")
+        labs_data = user_data.get("labs")
+        print(f"labs_data -> {labs_data}")
         tests_data = user_data.get("tests")
 
         if auth_data is not None:
@@ -91,6 +106,9 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
         if works_data is not None:
             if auth_data.get("name") and auth_data.get("group") and auth_data.get("subgroup"):
                 await self._register_work(username, works_data, auth_data)
+
+        if labs_data is not None:
+            await self._add_lab(labs_data)
 
         if tests_data is not None:
             if user_type == "teacher" and tests_data.get("test_link"):
@@ -115,6 +133,27 @@ class SpreadsheetStorage(BaseSpreadsheetStorage):
     async def _register_work(self, username, works_data, auth_data):
         works_handler: BaseWorksSpreadsheetHandler = self._works_handler
         works_handler.add_student_work(username, works_data, **auth_data)
+
+    async def _add_lab(self, labs_data):
+        labs_handler: WorksSpreadsheetHandler = self._works_handler
+        print(f"updater {labs_data}")
+        if isinstance(labs_data, list):
+            for lab_data in labs_data:
+                lab_data.setdefault('text', '')
+                lab_data.setdefault('difficulty', '')
+                lab_data.setdefault('deadline_date', 'none')
+                lab_data.setdefault('lab_lesson_count', 'none')
+                labs_handler.add_lab_to_sheet(**lab_data)
+        else:
+            labs_data.setdefault('text', '')
+            labs_data.setdefault('difficulty', '')
+            labs_data.setdefault('deadline_date', 'none')
+            labs_data.setdefault('lab_lesson_count', 'none')
+            labs_handler.add_lab_to_sheet(**labs_data)
+
+    async def _show_works(self):
+        works_handler: WorksSpreadsheetHandler = self._works_handler
+        works_handler.get_lab_works()
 
     async def _register_user(self, username, user_type, auth_data):
         auth_handler: BaseAuthSpreadsheetHandler = self._auth_handler
